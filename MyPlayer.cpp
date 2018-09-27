@@ -149,7 +149,7 @@ void AMyPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 	PlayerInputComponent->BindAction("Dagger", IE_Pressed, this, &AMyPlayer::OnDagger);
 	PlayerInputComponent->BindAction("Javelin", IE_Pressed, this, &AMyPlayer::OnJavelin);
-	PlayerInputComponent->BindAction("Teleport", IE_Pressed, this, &AMyPlayer::OnTeleport);
+	PlayerInputComponent->BindAction("Bomb", IE_Pressed, this, &AMyPlayer::OnBomb);
 
 	PlayerInputComponent->BindAction("Attack", IE_Pressed, this, &AMyPlayer::OnAttack);
 
@@ -290,7 +290,7 @@ void AMyPlayer::ZoomIn()
 	isInZoom = true; 
 	fpsCamera->SetRelativeLocation(FVector(150, 30, 64), false);
 
-	if(IsJumping()) GetCharacterMovement()->SetMovementMode(MOVE_Falling);
+	if(IsJumpProvidingForce()) GetCharacterMovement()->SetMovementMode(MOVE_Falling);
 	else GetCharacterMovement()->SetMovementMode(MOVE_None);
 
 	//SetActorRotation(fpsCamera->GetForwardVector().ToOrientationQuat());
@@ -320,24 +320,29 @@ void AMyPlayer::SetHealingFalse()
 
 void AMyPlayer::OnAttack()
 {
-	healingTime = 1.0f;
 
 	if (CurrentWeapon == Inventory[1] && !(CurrentWeapon->GetAttackStatus()))
 	{
 		if (Energy >= 30.0f)
 		{
+			healingTime = 1.0f;
 			CurrentWeapon->StartAttack();
 			FTimerHandle AttackHandle;
 			GetWorldTimerManager().SetTimer(AttackHandle, this, &AMyPlayer::OnFire, .5f, false);
 		}
 	}
+	else if (CurrentWeapon == Inventory[2] && !(CurrentWeapon->GetAttackStatus()))
+	{
+		healingTime = 1.0f;
+		CurrentWeapon->StartAttack();
+		FTimerHandle AttackHandle;
+		GetWorldTimerManager().SetTimer(AttackHandle, this, &AMyPlayer::ThrowBomb, .35f, false);
+	}
 	else if (!(CurrentWeapon->GetAttackStatus()))
 	{
-		
+		healingTime = 1.0f;
 		CurrentWeapon->StartAttack();
 	}
-
-
 }
 
 void AMyPlayer::OnFire()
@@ -353,6 +358,25 @@ void AMyPlayer::OnFire()
 		{
 			EnergyDown(30.0f);
 			World->SpawnActor<AProjectile>(DefaultProjectileClasses[0], SpawnLocation, SpawnRotation);
+		}
+	}
+}
+
+void AMyPlayer::ThrowBomb()
+{
+	if (DefaultProjectileClasses[1] != NULL)
+	{
+		//AddActorWorldRotation(fpsCamera->GetForwardVector().ToOrientationQuat());
+		const FRotator SpawnRotation = GetActorRotation();		
+		//const FVector SpawnLocation = GetActorLocation() + SpawnRotation.RotateVector(FVector(100.0f, 30.0f, 10.0f));
+
+		const FVector SpawnLocation = GetMesh()->GetSocketLocation(GetWeaponAttachPoint()) + SpawnRotation.RotateVector(FVector(0,0,0));
+
+		UWorld* const World = GetWorld();
+		if (World != NULL)
+		{
+			EnergyDown(60.0f);
+			World->SpawnActor<AProjectile>(DefaultProjectileClasses[1], SpawnLocation, SpawnRotation);
 		}
 	}
 }
@@ -441,7 +465,7 @@ void AMyPlayer::OnJavelin()
 	EquipWeapon(NextWeapon);
 }
 
-void AMyPlayer::OnTeleport()
+void AMyPlayer::OnBomb()
 {
 	AWeapon* NextWeapon = Inventory[2 % Inventory.Num()];
 

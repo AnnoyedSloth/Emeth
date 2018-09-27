@@ -29,14 +29,14 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Projectile)
 		float damage;
 
-	void NotifyActorBeginOverlap(AActor* OtherActor);
+	virtual void NotifyActorBeginOverlap(AActor* OtherActor);
 
 	//virtual void PostInitializeComponents() override;
 
 	FORCEINLINE class USphereComponent* GetProjectileCollision() const { return ProjectileCollision; }
 	FORCEINLINE class UProjectileMovementComponent* GetProjectileMovement() const { return ProjectileMovement; }
 
-	void OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
+	//void OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 
 	class ACommonCharacter *myPawn;
 

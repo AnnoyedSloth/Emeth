@@ -21,7 +21,7 @@ AProjectile::AProjectile(const class FObjectInitializer& ObjectInitializer)
 	ProjectileMovement->InitialSpeed = 3000.0f;
 	ProjectileMovement->MaxSpeed = 3000.0f;
 	ProjectileMovement->bRotationFollowsVelocity = true;
-	InitialLifeSpan = 3.0f;
+	InitialLifeSpan = 10.0f;
 	damage = 30.0f;
 	instigatorName = "Player";
 
@@ -46,22 +46,21 @@ void AProjectile::NotifyActorBeginOverlap(AActor* OtherActor)
 		//GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, "ApplyDamage");
 		Destroy();
 	}
-
 }
 
-void AProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
-{
-
-	//GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Red, "Collision Projectile!!");
-	// Only add impulse and destroy projectile if we hit a physics
-	if ((OtherActor != NULL) && (OtherActor != this) && (OtherComp != NULL) && OtherComp->IsSimulatingPhysics())
-	{
-		UGameplayStatics::ApplyPointDamage(Hit.Actor.Get(), 100, -Hit.ImpactNormal, Hit, NULL, this, UDamageType::StaticClass());
-		OtherComp->AddImpulseAtLocation(GetVelocity() * 100.0f, GetActorLocation());
-
-		Destroy();
-	}
-}
+//void AProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
+//{
+//
+//	//GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Red, "Collision Projectile!!");
+//	// Only add impulse and destroy projectile if we hit a physics
+//	if ((OtherActor != NULL) && (OtherActor != this) && (OtherComp != NULL) && OtherComp->IsSimulatingPhysics())
+//	{
+//		UGameplayStatics::ApplyPointDamage(Hit.Actor.Get(), 100, -Hit.ImpactNormal, Hit, NULL, this, UDamageType::StaticClass());
+//		OtherComp->AddImpulseAtLocation(GetVelocity() * 100.0f, GetActorLocation());
+//
+//		Destroy();
+//	}
+//}
 
 void AProjectile::SetOwningPawn(ACommonCharacter* owner)
 {

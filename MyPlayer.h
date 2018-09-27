@@ -92,8 +92,9 @@ protected:
 
 	void TakeDamageSelf();
 
-	virtual void OnAttack();
-	virtual void OnFire();
+	void OnAttack();
+	void OnFire();
+	void ThrowBomb();
 
 	virtual void Jump() override;
 
@@ -102,13 +103,13 @@ public:
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
 	virtual void EquipWeapon(class AWeapon* weapon);
 	virtual void SpawnDefaultInventory();
 	virtual void OnChangeWeapon();
+
 	void OnDagger();
 	void OnJavelin();
-	void OnTeleport();
+	void OnBomb();
 	void EnergyDown(float value);
 
 	virtual void SetCurrentWeapon(class AWeapon* newWeapon, class AWeapon* lastWeapon);

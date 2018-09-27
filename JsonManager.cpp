@@ -52,9 +52,9 @@ void JsonManager::Save(FString name, FVector loc, FRotator rot)
 	location->SetNumberField("Z", loc.Z);
 
 	TSharedPtr<FJsonObject> rotation = MakeShareable(new FJsonObject);
-	rotation->SetNumberField("X", rot.Roll);
-	rotation->SetNumberField("Y", rot.Pitch);
-	rotation->SetNumberField("Z", rot.Yaw);
+	rotation->SetNumberField("X", rot.Pitch);
+	rotation->SetNumberField("Y", rot.Yaw);
+	rotation->SetNumberField("Z", rot.Roll);
 
 	jsonMap->Find(name)->ToSharedRef()->SetStringField("Name", name);
 	jsonMap->Find(name)->ToSharedRef()->SetObjectField("Location", location);
@@ -140,5 +140,4 @@ TSharedPtr<ObjectInfo> JsonManager::Load(FString name)
 	//GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Blue, myInfo->rot.ToString());
 
 	return myInfo;
-
 }
