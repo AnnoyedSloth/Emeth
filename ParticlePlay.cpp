@@ -1,13 +1,13 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "Explosion.h"
+#include "ParticlePlay.h"
 #include "Emeth.h"
 #include "CommonCharacter.h"
 #include "Components/SphereComponent.h"
 
 
 // Sets default values
-AExplosion::AExplosion(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
+AParticlePlay::AParticlePlay(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 
@@ -21,23 +21,24 @@ AExplosion::AExplosion(const FObjectInitializer& ObjectInitializer) : Super(Obje
 	//explosionLight->bVisible = true;
 
 
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
 	explosionFX = CreateDefaultSubobject<UParticleSystem>(TEXT("Particle"));
 
 }
 
-void AExplosion::BeginPlay()
+void AParticlePlay::BeginPlay()
 {
 	Super::BeginPlay();
 
 	if (explosionFX)
 	{
 		UGameplayStatics::SpawnEmitterAtLocation(this, explosionFX, GetActorLocation(), GetActorRotation());
+		Destroy();
 	}
 	
 }
 
-void AExplosion::Tick(float DeltaTime)
+void AParticlePlay::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 

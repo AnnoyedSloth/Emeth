@@ -3,6 +3,7 @@
 #include "CommonCharacter.h"
 #include "Weapon.h"
 #include "Projectile.h"
+#include "ParticlePlay.h"
 #include "JsonManager.h"
 #include "Engine.h"
 
@@ -12,6 +13,8 @@ ACommonCharacter::ACommonCharacter()
 {
 	PrimaryActorTick.bCanEverTick = true;
 	Health = 100.0f;
+
+	
 	//ProjectileClass.GetDefaultObject()->SetOwningPawn(this);
 }
 
@@ -119,9 +122,10 @@ void ACommonCharacter::OnHit(float DamageTaken, struct FDamageEvent const& Damag
 	if (DamageTaken > 0.0f)
 	{
 		ApplyDamageMomentum(DamageTaken, DamageEvent, PawnInstigator, DamageCauser);
+		
+		
+		
 	}
-
-
 	JsonManager::GetInstance()->Save(GetName(), GetActorLocation(), GetActorRotation());
 }
 
@@ -193,6 +197,8 @@ float ACommonCharacter::TakeDamage(float Damage, struct FDamageEvent const & Dam
 	if (ActualDamage > 0.0f)
 	{
 		Health -= ActualDamage;
+
+		GetWorld()->SpawnActor<AParticlePlay>(bloodParticle, GetActorLocation(), GetActorRotation());
 	}
 
 	if (Health <= 0)

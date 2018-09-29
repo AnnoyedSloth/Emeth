@@ -15,7 +15,7 @@ class EMETH_API ABombProjectile : public AProjectile
 	GENERATED_BODY()
 
 	UPROPERTY(EditDefaultsOnly, Category = Effect)
-		TSubclassOf<class AExplosion> explosion;
+		TSubclassOf<class AParticlePlay> explosion;
 
 	//UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	//	class UStaticMeshComponent* staticSphere;
@@ -40,7 +40,10 @@ public:
 	virtual void NotifyActorBeginOverlap(AActor* OtherActor);
 
 	UFUNCTION()
-		virtual void OnOverlapEnter(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult &SweepResult);
-	UFUNCTION()
-		virtual void OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+		virtual void ProjectileOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult &SweepResult);
+
+	//UFUNCTION()
+	//	virtual void OnOverlapEnter(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult &SweepResult);
+	//UFUNCTION()
+	//	virtual void OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 };

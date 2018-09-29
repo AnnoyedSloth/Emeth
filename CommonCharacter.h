@@ -59,11 +59,13 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = Weapon)
 		bool isDuringAttack;
 
-	//Weapon Animations
+	//Weapon Animations & Particles
 	UPROPERTY(EditDefaultsOnly, Category = Pawn)
 		UAnimMontage* BehitAnim;
 	UPROPERTY(EditDefaultsOnly, Category = Pawn)
 		UAnimMontage* DeathAnim;
+	UPROPERTY(EditDefaultsOnly, Category = Pawn)
+		TSubclassOf<class AParticlePlay> bloodParticle;
 
 	//Dying Event 
 	virtual void OnHit(float DamageTaken, struct FDamageEvent const& DamageEvent, class APawn* PawnInstigator, class AActor* DamageCauser);

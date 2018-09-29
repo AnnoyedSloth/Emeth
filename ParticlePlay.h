@@ -4,10 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "Explosion.generated.h"
+#include "ParticlePlay.generated.h"
 
 UCLASS()
-class EMETH_API AExplosion : public AActor
+class EMETH_API AParticlePlay : public AActor
 {
 	GENERATED_BODY()
 
@@ -21,7 +21,7 @@ private:
 
 public:	
 	// Sets default values for this actor's properties
-	AExplosion(const FObjectInitializer& ObjectInitializer);
+	AParticlePlay(const FObjectInitializer& ObjectInitializer);
 
 protected:
 

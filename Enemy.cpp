@@ -71,12 +71,11 @@ void AEnemy::PlayMeleeAnim()
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 	AnimInstance->Montage_Play(MeleeAnim);
 
-	FTimerHandle TimerHandle_EnemyStopAttack;
-	GetWorldTimerManager().SetTimer(TimerHandle_EnemyStopAttack, this, &AEnemy::StopMeleeAnim, 1.0f, false);
-
 	FTimerHandle AttackHandle;
-	GetWorldTimerManager().SetTimer(AttackHandle, this, &AEnemy::SetAttackStatus, .3f, false);
+	GetWorldTimerManager().SetTimer(AttackHandle, this, &AEnemy::SetAttackStatus, 1.7f, false);
 
+	FTimerHandle TimerHandle_EnemyStopAttack;
+	GetWorldTimerManager().SetTimer(TimerHandle_EnemyStopAttack, this, &AEnemy::StopMeleeAnim, 2.0f, false);
 }
 
 void AEnemy::StopMeleeAnim()
