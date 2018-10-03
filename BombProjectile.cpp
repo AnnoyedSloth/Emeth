@@ -4,6 +4,7 @@
 #include "Emeth.h"
 #include "ParticlePlay.h"
 #include "CommonCharacter.h"
+#include "PhysicsEngine/DestructibleActor.h"
 #include "Enemy.h"
 #include "Components/SphereComponent.h"
 #include "Engine.h"
@@ -43,7 +44,7 @@ void ABombProjectile::Tick(float deltaTime)
 }
 
 //Must leave as empty function
-//Not to execute base class function
+//Not to execute base class' function
 void ABombProjectile::NotifyActorBeginOverlap(AActor* OtherActor){}
 
 void ABombProjectile::BombExplosion()
@@ -55,6 +56,14 @@ void ABombProjectile::BombExplosion()
 
 	for (AActor* actor : overlapping)
 	{
+		ADestructibleActor* isDest = Cast<ADestructibleActor>(actor);
+		if (isDest)
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, isDest->GetFName().ToString());
+			isDest->GetDestructibleComponent()->SetSimulatePhysics(true);
+			isDest->GetDestructibleComponent()->AddImpulse(GetActorLocation());
+		}
+
 		UGameplayStatics::ApplyDamage(actor, 100.0f, NULL, this, UDamageType::StaticClass());
 	}
 
@@ -66,6 +75,8 @@ void ABombProjectile::BombExplosion()
 void ABombProjectile::ProjectileOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult &SweepResult)
 {
 	if (OtherActor->Tags.Num() == 0) return;
+
+
 	//if(OtherActor-> == ECC_WorldStatic)
 	if (OtherActor->IsA(AActor::StaticClass()) && OtherActor->Tags[0] != instigatorName)
 	{

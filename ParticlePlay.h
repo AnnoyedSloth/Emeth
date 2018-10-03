@@ -14,11 +14,6 @@ class EMETH_API AParticlePlay : public AActor
 	UPROPERTY(EditDefaultsOnly, Category = Effect)
 		class UParticleSystem* explosionFX;
 
-private:
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
-		class USphereComponent* sphereCollision;
-
 public:	
 	// Sets default values for this actor's properties
 	AParticlePlay(const FObjectInitializer& ObjectInitializer);
@@ -27,11 +22,6 @@ protected:
 
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-
-public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
-	//void NotifyActorBeginOverlap(AActor* OtherActor);
-	
+		
 	
 };
