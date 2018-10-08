@@ -61,7 +61,7 @@ void ABombProjectile::BombExplosion()
 		{
 			GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, isDest->GetFName().ToString());
 			isDest->GetDestructibleComponent()->SetSimulatePhysics(true);
-			isDest->GetDestructibleComponent()->AddImpulse(GetActorLocation());
+			isDest->GetDestructibleComponent()->AddRadialForce(this->GetActorLocation(), 200.0f, 1000000.0f, RIF_Constant);
 		}
 
 		UGameplayStatics::ApplyDamage(actor, 100.0f, NULL, this, UDamageType::StaticClass());

@@ -46,7 +46,6 @@ AMyPlayer::AMyPlayer()
 	fpsCamera->RelativeLocation = FVector(0, 0, BaseEyeHeight);
 	fpsCamera->bUsePawnControlRotation = true;
 
-
 	isInZoom = false;
 
 	zoomVector = GetActorLocation() + FVector(5, 0, -10);
@@ -155,11 +154,6 @@ void AMyPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 	PlayerInputComponent->BindAction("Hide", IE_Pressed, this, &AMyPlayer::Hide);
 
-
-	//PlayerInputComponent->BindAction("Tumbling", IE_Pressed, this, &AMyPlayer::Tumble);
-
-	//PlayerInputComponent->BindAction("ZoomIn", IE_Pressed, this, &AMyPlayer::ZoomIn);
-	//PlayerInputComponent->BindAction("ZoomIn", IE_Released, this, &AMyPlayer::ZoomOut);
 	PlayerInputComponent->BindAction("TakeDamage", IE_Pressed, this, &AMyPlayer::TakeDamageSelf);
 	PlayerInputComponent->BindAction("Ray", IE_Pressed, this, &AMyPlayer::LineTraceTeleport);
 
@@ -233,7 +227,6 @@ void AMyPlayer::Jump()
 
 void AMyPlayer::Tumble()
 {
-
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 	AnimInstance->Montage_Play(TumbleAnim);
 }
@@ -279,9 +272,10 @@ void AMyPlayer::Hide()
 	}
 }
 
-void AMyPlayer::EnergyDown(float value)
+void AMyPlayer::EnergyDown(float value, float delay)
 {
 	Energy -= value;
+	healingTime = delay;
 }
 
 
@@ -308,16 +302,6 @@ void AMyPlayer::ZoomOut()
 	//fpsCamera->SetRelativeLocation(FVector(0, 0, 64), false);
 }
 
-void AMyPlayer::SetHealingTrue()
-{
-	isHealing = true;
-}
-
-void AMyPlayer::SetHealingFalse()
-{
-	isHealing = false;
-}
-
 void AMyPlayer::OnAttack()
 {
 
@@ -325,7 +309,7 @@ void AMyPlayer::OnAttack()
 	{
 		if (Energy >= 30.0f)
 		{
-			healingTime = 1.0f;
+			EnergyDown(30.0f, 1.0f);
 			CurrentWeapon->StartAttack();
 			FTimerHandle AttackHandle;
 			GetWorldTimerManager().SetTimer(AttackHandle, this, &AMyPlayer::OnFire, .5f, false);
@@ -333,7 +317,7 @@ void AMyPlayer::OnAttack()
 	}
 	else if (CurrentWeapon == Inventory[2] && !(CurrentWeapon->GetAttackStatus()))
 	{
-		healingTime = 1.0f;
+		EnergyDown(50.0f, 1.0f);
 		CurrentWeapon->StartAttack();
 		FTimerHandle AttackHandle;
 		GetWorldTimerManager().SetTimer(AttackHandle, this, &AMyPlayer::ThrowBomb, .35f, false);
@@ -356,7 +340,6 @@ void AMyPlayer::OnFire()
 		UWorld* const World = GetWorld();
 		if (World != NULL)
 		{
-			EnergyDown(30.0f);
 			World->SpawnActor<AProjectile>(DefaultProjectileClasses[0], SpawnLocation, SpawnRotation);
 		}
 	}
@@ -375,7 +358,6 @@ void AMyPlayer::ThrowBomb()
 		UWorld* const World = GetWorld();
 		if (World != NULL)
 		{
-			EnergyDown(60.0f);
 			World->SpawnActor<AProjectile>(DefaultProjectileClasses[1], SpawnLocation, SpawnRotation);
 		}
 	}

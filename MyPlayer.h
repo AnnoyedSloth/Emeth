@@ -11,13 +11,11 @@ class EMETH_API AMyPlayer : public ACommonCharacter
 {
 	GENERATED_BODY()
 
-		UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 		class USpringArmComponent* CameraBoom;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 		class UCameraComponent* fpsCamera;
-
-
 
 	float senV;
 	float senH;
@@ -25,13 +23,19 @@ class EMETH_API AMyPlayer : public ACommonCharacter
 	FVector zoomVector;
 	FRotator orient;
 
+	//Energy healing variables
+	UPROPERTY(VisibleAnywhere, Category = Skill)
 	bool isHealing;
+	UPROPERTY(VisibleAnywhere, Category = Skill)
 	float healingTime;
 
-	bool isInZoom;
-	
-	UPROPERTY(EditDefaultsOnly, Category = Skill)
-	bool isHiding;
+	//Zoom flag
+	UPROPERTY(VisibleAnywhere, Category = Skill)
+		bool isInZoom;
+
+	//Hiding skill flag
+	UPROPERTY(VisibleAnywhere, Category = Skill)
+		bool isHiding;
 
 public:
 	AMyPlayer();
@@ -47,39 +51,39 @@ public:
 		float runSpeed = 600.0f;
 
 	UPROPERTY(EditDefaultsOnly, Category = Sound)
-	class USoundBase* walkSound;
+		class USoundBase* walkSound;
 
 	UPROPERTY(EditDefaultsOnly, Category = Animation)
 		UAnimMontage* TumbleAnim;
 
 	UFUNCTION(BlueprintCallable, Category = "AI")
-	bool GetHide() const { return isHiding; }
+		bool GetHide() const { return isHiding; }
 
-	UFUNCTION(BlueprintCallable, Category = "Getter")
-	int32 GetCurWeapon() const {return Inventory.IndexOfByKey(CurrentWeapon);}
+	UFUNCTION(BlueprintCallable, Category = "Inventory")
+		int32 GetCurWeapon() const { return Inventory.IndexOfByKey(CurrentWeapon); }
 
 protected:
 	virtual void BeginPlay() override;
-
 	virtual void Tick(float DeltaTime) override;
 
+	//Move related functions
 	void MoveForward(float speed);
 	void MoveRight(float speed);
 
 	void TurnVertical(float rate);
 	void TurnHorizontal(float rate);
 
-	void Walk();
-	void Run();
+	virtual void Jump() override;
 
-	UFUNCTION(BlueprintCallable, Category = "Action")
-	void Tumble();
+	UFUNCTION(BlueprintCallable, Category = "Move")
+		void Walk();
+	UFUNCTION(BlueprintCallable, Category = "Move")
+		void Run();
 
-	UFUNCTION(BlueprintCallable, Category = "Transformation")
-	void LineTraceTeleport();
 
+	//Basic skills
 	UFUNCTION(BlueprintCallable, Category = "AI")
-	void Hide();
+		void Hide();
 
 	UFUNCTION(BlueprintCallable, Category = "MouseAction")
 		void ZoomIn();
@@ -90,13 +94,28 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "Math")
 		FRotator SetYToZero(FRotator rotation) const { rotation.Pitch = 0; return rotation; }
 
-	void TakeDamageSelf();
 
-	void OnAttack();
-	void OnFire();
-	void ThrowBomb();
+	//These functions will used when testing
+	UFUNCTION(BlueprintCallable, Category = "Debug")
+		void TakeDamageSelf();
 
-	virtual void Jump() override;
+	UFUNCTION(BlueprintCallable, Category = "Debug")
+		void LineTraceTeleport();
+
+
+	//Actions which related to battle
+	UFUNCTION(BlueprintCallable, Category = "Action")
+		void OnAttack();
+
+	UFUNCTION(BlueprintCallable, Category = "Action")
+		void OnFire();
+
+	UFUNCTION(BlueprintCallable, Category = "Action")
+		void ThrowBomb();
+
+	UFUNCTION(BlueprintCallable, Category = "Action")
+		void Tumble();
+
 
 public:
 
@@ -110,10 +129,7 @@ public:
 	void OnDagger();
 	void OnJavelin();
 	void OnBomb();
-	void EnergyDown(float value);
+	void EnergyDown(float value, float delay);
 
 	virtual void SetCurrentWeapon(class AWeapon* newWeapon, class AWeapon* lastWeapon);
-
-	void SetHealingTrue();
-	void SetHealingFalse();
 };
