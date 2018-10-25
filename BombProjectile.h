@@ -25,8 +25,11 @@ class EMETH_API ABombProjectile : public AProjectile
 
 protected:
 	
-	UPROPERTY(EditAnywhere, Category = Time)
+	UPROPERTY(EditAnywhere, Category = Parameter)
 		float explosionDelay;
+
+	UPROPERTY(EditDefaultsOnly, Category = Parameter)
+		float impactRadius;
 
 	UFUNCTION()
 		void BombExplosion();

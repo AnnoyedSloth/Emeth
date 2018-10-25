@@ -23,16 +23,16 @@ private:
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Pawn)
-	class ACommonCharacter* MyPawn;
+		class ACommonCharacter* MyPawn;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Animation)
 		TArray<UAnimMontage*> AttackAnim;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Weapon)
-	bool duringAttack;
+		bool duringAttack;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Weapon)
-	bool isAttackStarted;
+		bool isAttackStarted;
 
 	// Sets default values for this actor's properties
 	AWeapon(const class FObjectInitializer& ObjectInitializer);
@@ -44,21 +44,23 @@ public:
 		float damage;
 
 	UFUNCTION()
-	void OnEquip(const AWeapon* lastWeapon);
+		void OnEquip(const AWeapon* lastWeapon);
 	UFUNCTION()
-	void UnEquip();
-
-	void SetAttackStatus();
+		void UnEquip();
 
 	UFUNCTION()
-	void StartAttack();
+		virtual void SetAttackStatus();
+
 	UFUNCTION()
-	void StopAttack();
+		void StartAttack();
+	UFUNCTION()
+		void StopAttack();
 
 	UFUNCTION()
 		void SelfDestroy();
 
-	bool GetAttackStatus() const { return duringAttack; }
+	UFUNCTION(BlueprintCallable, Category = Status)
+		virtual bool GetAttackStatus() const { return duringAttack; }
 
 	virtual void NotifyActorBeginOverlap(AActor* OtherActor) override;
 

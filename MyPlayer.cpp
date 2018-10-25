@@ -4,6 +4,7 @@
 #include "Weapon.h"
 #include "Projectile.h"
 #include "Engine.h"
+#include "ParticlePlay.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/InputComponent.h"
@@ -58,6 +59,7 @@ void AMyPlayer::PostInitializeComponents()
 
 	SpawnDefaultInventory();
 }
+
 
 // Called when the game starts or when spawned
 void AMyPlayer::BeginPlay()
@@ -225,10 +227,25 @@ void AMyPlayer::Jump()
 	healingTime = 1.0f;
 }
 
-void AMyPlayer::Tumble()
+bool AMyPlayer::Tumble()
 {
+	if (isTumbling || Energy < 10.0f) return false;
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	FOnMontageEnded EndDelegate;
+
+	EnergyDown(10.0f, 1.0f);
+	isTumbling = true;
+
 	AnimInstance->Montage_Play(TumbleAnim);
+	EndDelegate.BindUObject(this, &AMyPlayer::OnTumbleEnded);
+	
+	AnimInstance->Montage_SetEndDelegate(EndDelegate);
+	return true;
+}
+
+void AMyPlayer::OnTumbleEnded(UAnimMontage* montage, bool bInterrupted)
+{
+	isTumbling = false;
 }
 
 void AMyPlayer::LineTraceTeleport()
@@ -304,12 +321,12 @@ void AMyPlayer::ZoomOut()
 
 void AMyPlayer::OnAttack()
 {
-
+	if (isTumbling) return;
 	if (CurrentWeapon == Inventory[1] && !(CurrentWeapon->GetAttackStatus()))
 	{
-		if (Energy >= 30.0f)
+		if (Energy >= 10.0f)
 		{
-			EnergyDown(30.0f, 1.0f);
+			EnergyDown(10.0f, 1.0f);
 			CurrentWeapon->StartAttack();
 			FTimerHandle AttackHandle;
 			GetWorldTimerManager().SetTimer(AttackHandle, this, &AMyPlayer::OnFire, .5f, false);
@@ -317,14 +334,17 @@ void AMyPlayer::OnAttack()
 	}
 	else if (CurrentWeapon == Inventory[2] && !(CurrentWeapon->GetAttackStatus()))
 	{
-		EnergyDown(50.0f, 1.0f);
-		CurrentWeapon->StartAttack();
-		FTimerHandle AttackHandle;
-		GetWorldTimerManager().SetTimer(AttackHandle, this, &AMyPlayer::ThrowBomb, .35f, false);
+		if (Energy >= 30.0f)
+		{
+			EnergyDown(30.0f, 1.0f);
+			CurrentWeapon->StartAttack();
+			FTimerHandle AttackHandle;
+			GetWorldTimerManager().SetTimer(AttackHandle, this, &AMyPlayer::ThrowBomb, .35f, false);
+		}
 	}
 	else if (!(CurrentWeapon->GetAttackStatus()))
 	{
-		healingTime = 1.0f;
+		EnergyDown(0, 1.0f);
 		CurrentWeapon->StartAttack();
 	}
 }
@@ -347,6 +367,7 @@ void AMyPlayer::OnFire()
 
 void AMyPlayer::ThrowBomb()
 {
+	if (isTumbling) return;
 	if (DefaultProjectileClasses[1] != NULL)
 	{
 		//AddActorWorldRotation(fpsCamera->GetForwardVector().ToOrientationQuat());
@@ -452,4 +473,33 @@ void AMyPlayer::OnBomb()
 	AWeapon* NextWeapon = Inventory[2 % Inventory.Num()];
 
 	EquipWeapon(NextWeapon);
+}
+
+float AMyPlayer::TakeDamage(float Damage, struct FDamageEvent const & DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+{
+	if (isTumbling) return 0;
+	if (Health < -0.0f)
+	{
+		return 0.0f;
+	}
+
+	const float ActualDamage = Super::TakeDamage(Damage, DamageEvent, EventInstigator, DamageCauser);
+
+	if (ActualDamage > 0.0f)
+	{
+		Health -= ActualDamage;
+
+		GetWorld()->SpawnActor<AParticlePlay>(bloodParticle, GetActorLocation(), GetActorRotation());
+	}
+
+	if (Health <= 0)
+	{
+		Die(ActualDamage, DamageEvent, EventInstigator, DamageCauser);
+	}
+	else
+	{
+		OnHit(ActualDamage, DamageEvent, EventInstigator ? EventInstigator->GetPawn() : NULL, DamageCauser);
+	}
+
+	return ActualDamage;
 }

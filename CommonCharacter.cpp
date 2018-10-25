@@ -121,10 +121,7 @@ void ACommonCharacter::OnHit(float DamageTaken, struct FDamageEvent const& Damag
 
 	if (DamageTaken > 0.0f)
 	{
-		ApplyDamageMomentum(DamageTaken, DamageEvent, PawnInstigator, DamageCauser);
-		
-		
-		
+		ApplyDamageMomentum(DamageTaken, DamageEvent, PawnInstigator, DamageCauser);		
 	}
 	JsonManager::GetInstance()->Save(GetName(), GetActorLocation(), GetActorRotation());
 }
@@ -187,7 +184,8 @@ void ACommonCharacter::OnDieAnimationEnd()
 
 float ACommonCharacter::TakeDamage(float Damage, struct FDamageEvent const & DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
-	if (Health < -0.0f)
+
+	if (Health < 0.0f)
 	{
 		return 0.0f;
 	}

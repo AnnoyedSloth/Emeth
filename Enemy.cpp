@@ -72,7 +72,7 @@ void AEnemy::PlayMeleeAnim()
 	AnimInstance->Montage_Play(MeleeAnim);
 
 	FTimerHandle AttackHandle;
-	GetWorldTimerManager().SetTimer(AttackHandle, this, &AEnemy::SetAttackStatus, 1.7f, false);
+	GetWorldTimerManager().SetTimer(AttackHandle, this, &AEnemy::SetAttackStatus, 1.8f, false);
 
 	FTimerHandle TimerHandle_EnemyStopAttack;
 	GetWorldTimerManager().SetTimer(TimerHandle_EnemyStopAttack, this, &AEnemy::StopMeleeAnim, 2.0f, false);
@@ -96,7 +96,7 @@ void AEnemy::OnPlayerCaught(APawn* Pawn)
 	AMyPlayer* myPlayer = Cast<AMyPlayer>(Pawn);
 	if (AIController && myPlayer)
 	{
-		//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Caught!"));
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Caught!"));
 		if (!myPlayer->GetHide()) 
 		{
 			AIController->SetPlayerCaught(Pawn);

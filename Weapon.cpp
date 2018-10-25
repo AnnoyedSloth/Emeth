@@ -68,11 +68,11 @@ void AWeapon::NotifyActorBeginOverlap(AActor* OtherActor)
 {
 	Super::NotifyActorBeginOverlap(OtherActor);
 
-	if (OtherActor->IsA(AActor::StaticClass()) && OtherActor != MyPawn && duringAttack)
+	if (OtherActor->IsA(ACommonCharacter::StaticClass()) && OtherActor != MyPawn && duringAttack && OtherActor->Tags[0] != this->Tags[0])
 	{
 		UGameplayStatics::ApplyDamage(OtherActor, damage, NULL, this, UDamageType::StaticClass());
 
-		duringAttack = false;
+		//duringAttack = false;
 
 		//GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, "ApplyDamage");
 	}

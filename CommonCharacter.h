@@ -53,7 +53,7 @@ protected:
 	TArray<class AWeapon*> Inventory;
 	void AddWeapon(class AWeapon* Weapon);
 	void SetCurrentWeapon(class AWeapon* newWeapon, class AWeapon* lastWeapon);
-	void SpawnDefaultInventory();
+	virtual void SpawnDefaultInventory();
 
 	//Attack status flag
 	UPROPERTY(VisibleAnywhere, Category = Weapon)

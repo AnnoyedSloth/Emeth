@@ -13,9 +13,10 @@ ABombProjectile::ABombProjectile(const class FObjectInitializer& ObjectInitializ
 {	
 	PrimaryActorTick.bCanEverTick = true;
 	explosionDelay = 2.5f;
+	impactRadius = 200.0f;
 
 	sphereCollision = CreateDefaultSubobject<USphereComponent>(TEXT("Targets"));
-	sphereCollision->InitSphereRadius(20);
+	sphereCollision->InitSphereRadius(impactRadius);
 	sphereCollision->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	sphereCollision->SetVisibility(true);
 	sphereCollision->Activate(true);
@@ -61,13 +62,12 @@ void ABombProjectile::BombExplosion()
 		{
 			GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, isDest->GetFName().ToString());
 			isDest->GetDestructibleComponent()->SetSimulatePhysics(true);
-			isDest->GetDestructibleComponent()->AddRadialForce(this->GetActorLocation(), 200.0f, 1000000.0f, RIF_Constant);
+			isDest->GetDestructibleComponent()->AddRadialForce(this->GetActorLocation(), impactRadius, 1000000.0f, RIF_Constant);
 		}
-
-		UGameplayStatics::ApplyDamage(actor, 100.0f, NULL, this, UDamageType::StaticClass());
+		float alpha = (impactRadius - FVector::Distance(actor->GetActorLocation(), this->GetActorLocation())) / impactRadius;
+		UGameplayStatics::ApplyDamage(actor, FMath::Lerp(30, 100, alpha), NULL, this, UDamageType::StaticClass());
 	}
 
-	//GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, "Bomb!");
 	Destroy();
 }
 

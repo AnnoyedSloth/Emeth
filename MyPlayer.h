@@ -11,7 +11,7 @@ class EMETH_API AMyPlayer : public ACommonCharacter
 {
 	GENERATED_BODY()
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+		UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 		class USpringArmComponent* CameraBoom;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
@@ -25,9 +25,11 @@ class EMETH_API AMyPlayer : public ACommonCharacter
 
 	//Energy healing variables
 	UPROPERTY(VisibleAnywhere, Category = Skill)
-	bool isHealing;
+		bool isHealing;
 	UPROPERTY(VisibleAnywhere, Category = Skill)
-	float healingTime;
+		float healingTime;
+	UPROPERTY(VisibleAnywhere, Category = Skill)
+		bool isTumbling;
 
 	//Zoom flag
 	UPROPERTY(VisibleAnywhere, Category = Skill)
@@ -62,6 +64,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Inventory")
 		int32 GetCurWeapon() const { return Inventory.IndexOfByKey(CurrentWeapon); }
 
+	UFUNCTION()
+		void OnTumbleEnded(UAnimMontage* montage, bool bInterrupted);
+
 protected:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
@@ -84,10 +89,8 @@ protected:
 	//Basic skills
 	UFUNCTION(BlueprintCallable, Category = "AI")
 		void Hide();
-
 	UFUNCTION(BlueprintCallable, Category = "MouseAction")
 		void ZoomIn();
-
 	UFUNCTION(BlueprintCallable, Category = "MouseAction")
 		void ZoomOut();
 
@@ -98,7 +101,6 @@ protected:
 	//These functions will used when testing
 	UFUNCTION(BlueprintCallable, Category = "Debug")
 		void TakeDamageSelf();
-
 	UFUNCTION(BlueprintCallable, Category = "Debug")
 		void LineTraceTeleport();
 
@@ -106,25 +108,23 @@ protected:
 	//Actions which related to battle
 	UFUNCTION(BlueprintCallable, Category = "Action")
 		void OnAttack();
-
 	UFUNCTION(BlueprintCallable, Category = "Action")
 		void OnFire();
-
 	UFUNCTION(BlueprintCallable, Category = "Action")
 		void ThrowBomb();
-
 	UFUNCTION(BlueprintCallable, Category = "Action")
-		void Tumble();
+		bool Tumble();
+	UFUNCTION(BlueprintCallable, Category = "Status")
+		bool GetTumbleStatus() const { return isTumbling; }
 
 
 public:
-
-
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	virtual void EquipWeapon(class AWeapon* weapon);
 	virtual void SpawnDefaultInventory();
 	virtual void OnChangeWeapon();
+	virtual float TakeDamage(float Damage, struct FDamageEvent const & DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 
 	void OnDagger();
 	void OnJavelin();
