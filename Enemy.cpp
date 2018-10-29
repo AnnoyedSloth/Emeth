@@ -5,6 +5,7 @@
 #include "EnemyAIController.h"
 #include "AIPatrolPoint.h"
 #include "MyPlayer.h"
+#include "Projectile.h"
 #include "BehaviorTree/BehaviorTree.h"
 #include "Perception/PawnSensingComponent.h"
 #include "Engine.h"
@@ -55,7 +56,15 @@ void AEnemy::NotifyActorBeginOverlap(AActor* Other)
 void AEnemy::OnHit(float DamageTaken, struct FDamageEvent const& DamageEvent, class APawn* PawnInstigator, class AActor* DamageCauser)
 {
 	Super::OnHit(DamageTaken, DamageEvent, PawnInstigator, DamageCauser);
-	OnPlayerCaught(PawnInstigator);
+
+	AWeapon *causerWeapon = Cast<AWeapon>(DamageCauser);
+	AProjectile *causerProjectile = Cast<AProjectile>(DamageCauser);
+	
+	if (causerWeapon) OnPlayerCaught(causerWeapon->GetOwningPawn());
+	if (causerProjectile) OnPlayerCaught(causerProjectile->GetOwningPawn());
+
+	//OnPlayerCaught(PawnInstigator);
+	//if(DamageCauser) GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, DamageCauser->GetName());
 
 }
 
@@ -94,12 +103,15 @@ void AEnemy::OnPlayerCaught(APawn* Pawn)
 {
 	AEnemyAIController* AIController = Cast<AEnemyAIController>(GetController());
 	AMyPlayer* myPlayer = Cast<AMyPlayer>(Pawn);
+
+	if(myPlayer) GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, "Cast Success");
+	//GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, myPlayer->GetName());
 	if (AIController && myPlayer)
 	{
 		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Caught!"));
 		if (!myPlayer->GetHide()) 
 		{
-			AIController->SetPlayerCaught(Pawn);
+			AIController->SetPlayerCaught(myPlayer);
 			GetCharacterMovement()->MaxWalkSpeed = 500.0f;
 		}
 	}

@@ -20,10 +20,11 @@ private:
 
 	int randomAnim = 0;
 
+	UPROPERTY(VisibleAnywhere, Category = Pawn)
+		class ACommonCharacter* MyPawn;
 
 public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Pawn)
-		class ACommonCharacter* MyPawn;
+
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Animation)
 		TArray<UAnimMontage*> AttackAnim;
@@ -37,6 +38,9 @@ public:
 	// Sets default values for this actor's properties
 	AWeapon(const class FObjectInitializer& ObjectInitializer);
 	void SetOwningPawn(ACommonCharacter* newOwner);
+
+	UFUNCTION(BlueprintCallable, Category = Pawn)
+	ACommonCharacter *GetOwningPawn() const { return MyPawn; }
 
 	void AttachMeshToPawn();
 

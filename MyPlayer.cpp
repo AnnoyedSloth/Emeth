@@ -360,7 +360,7 @@ void AMyPlayer::OnFire()
 		UWorld* const World = GetWorld();
 		if (World != NULL)
 		{
-			World->SpawnActor<AProjectile>(DefaultProjectileClasses[0], SpawnLocation, SpawnRotation);
+			World->SpawnActor<AProjectile>(DefaultProjectileClasses[0], SpawnLocation, SpawnRotation)->SetOwningPawn(this);
 		}
 	}
 }
@@ -379,7 +379,7 @@ void AMyPlayer::ThrowBomb()
 		UWorld* const World = GetWorld();
 		if (World != NULL)
 		{
-			World->SpawnActor<AProjectile>(DefaultProjectileClasses[1], SpawnLocation, SpawnRotation);
+			World->SpawnActor<AProjectile>(DefaultProjectileClasses[1], SpawnLocation, SpawnRotation)->SetOwningPawn(this);
 		}
 	}
 }

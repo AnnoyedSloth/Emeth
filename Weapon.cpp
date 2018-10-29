@@ -28,6 +28,7 @@ AWeapon::AWeapon(const class FObjectInitializer& ObjectInitializer)
 //	Destroy(WeaponCollision);
 //}
 
+
 void AWeapon::SelfDestroy()
 {
 	Destroy(this);
@@ -68,7 +69,7 @@ void AWeapon::NotifyActorBeginOverlap(AActor* OtherActor)
 {
 	Super::NotifyActorBeginOverlap(OtherActor);
 
-	if (OtherActor->IsA(ACommonCharacter::StaticClass()) && OtherActor != MyPawn && duringAttack && OtherActor->Tags[0] != this->Tags[0])
+	if (OtherActor->IsA(ACommonCharacter::StaticClass()) && OtherActor != MyPawn && duringAttack && !OtherActor->ActorHasTag(MyPawn->Tags[0]))
 	{
 		UGameplayStatics::ApplyDamage(OtherActor, damage, NULL, this, UDamageType::StaticClass());
 

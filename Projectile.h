@@ -14,6 +14,7 @@ class EMETH_API AProjectile : public AActor
 {
 	GENERATED_BODY()
 
+	class ACommonCharacter *myPawn;
 public:
 	AProjectile(const class FObjectInitializer& ObjectInitializer);
 
@@ -31,15 +32,10 @@ public:
 
 	virtual void NotifyActorBeginOverlap(AActor* OtherActor);
 
-	//virtual void PostInitializeComponents() override;
-
 	FORCEINLINE class USphereComponent* GetProjectileCollision() const { return ProjectileCollision; }
 	FORCEINLINE class UProjectileMovementComponent* GetProjectileMovement() const { return ProjectileMovement; }
 
-	//void OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
-
-	class ACommonCharacter *myPawn;
-
 	void SetOwningPawn(ACommonCharacter *owner);
+	ACommonCharacter *GetOwningPawn() const { return myPawn; }
 	
 };

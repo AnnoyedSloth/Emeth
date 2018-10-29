@@ -11,6 +11,7 @@ struct ObjectInfo
 {
 	FVector loc;
 	FRotator rot;
+	
 };
 
 class EMETH_API JsonManager
