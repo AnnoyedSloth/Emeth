@@ -48,6 +48,7 @@ void AEnemyAIController::SetPlayerCaught(APawn* Pawn)
 	{
 		//GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Blue, BehaviorComp->GetActiveNode()->GetNodeName());		
 		BlackboardComp->SetValueAsObject(PlayerKey, Pawn);
+		BehaviorComp->RestartTree();
 		//BehaviorComp->GetActiveNode()->
 	}
 }

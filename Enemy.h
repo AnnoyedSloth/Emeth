@@ -13,6 +13,9 @@ class EMETH_API AEnemy : public ACommonCharacter
 
 	UPROPERTY(EditAnywhere, Category = AI)
 		TArray<class AAIPatrolPoint*> PatrolPoints;
+	
+	UPROPERTY(VisibleAnywhere, Category = AI)
+		bool isSaw;
 
 public:
 	AEnemy();

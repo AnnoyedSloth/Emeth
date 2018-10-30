@@ -33,6 +33,8 @@ void AEnemy::BeginPlay()
 	{
 		PawnSensingComp->OnSeePawn.AddDynamic(this, &AEnemy::OnPlayerCaught);
 	}
+
+	isSaw = false;
 }
 
 void AEnemy::PostInitializeComponents()
@@ -101,20 +103,23 @@ void AEnemy::SetAttackStatus()
 
 void AEnemy::OnPlayerCaught(APawn* Pawn)
 {
+	if (isSaw) return;
 	AEnemyAIController* AIController = Cast<AEnemyAIController>(GetController());
 	AMyPlayer* myPlayer = Cast<AMyPlayer>(Pawn);
 
-	if(myPlayer) GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, "Cast Success");
-	//GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, myPlayer->GetName());
+	if (myPlayer) GEngine->AddOnScreenDebugMessage(-1, 2.0f,FColor::Green, "Cast Success");
+	//GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green,myPlayer->GetName());
 	if (AIController && myPlayer)
 	{
 		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Caught!"));
-		if (!myPlayer->GetHide()) 
+		if (!myPlayer->GetHide())
 		{
 			AIController->SetPlayerCaught(myPlayer);
 			GetCharacterMovement()->MaxWalkSpeed = 500.0f;
 		}
 	}
+	isSaw = true;
+
 }
 
 void AEnemy::PrintStatus()

@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "JsonManager.h"
+#include "CommonCharacter.h"
 #include <mutex>
 #include <JsonSerializer.h>
 #include <Json.h>
@@ -11,10 +12,9 @@ static std::once_flag onceFlag;
 
 JsonManager::JsonManager()
 {
-	jsonMap = new TMap<FString, TSharedPtr<FJsonObject>>();
+	saveMap = new TMap<FString, TSharedPtr<FJsonObject>>();
 	loadMap = new TMap<FString, TSharedPtr<FJsonObject>>();
 	//JsonManager::GetInstance()->LoadInit();
-	isDeserialized = false;
 	//LoadInit();
 }
 
@@ -32,19 +32,18 @@ JsonManager* JsonManager::GetInstance()
 	return instance;
 }
 
-
-void JsonManager::Save(FString name, FVector loc, FRotator rot)
+void JsonManager::ClearMap()
 {
-	if (jsonMap->Find(name) == nullptr)
+	saveMap->Empty();
+}
+
+void JsonManager::SendData(FString name, FVector loc, FRotator rot)
+{
+	if (saveMap->Find(name) == nullptr)
 	{
 		TSharedPtr<FJsonObject> objInfo = MakeShareable(new FJsonObject);
-		jsonMap->Add(name, objInfo);
+		saveMap->Add(name, objInfo);
 	}
-
-	FString jsonStr = " ";
-	TSharedRef<TJsonWriter<>> jsonWriter = TJsonWriterFactory<>::Create(&jsonStr);
-
-	TSharedPtr<FJsonObject> jsonObj = MakeShareable(new FJsonObject);
 
 	TSharedPtr<FJsonObject> location = MakeShareable(new FJsonObject);
 	location->SetNumberField("X", loc.X);
@@ -56,79 +55,69 @@ void JsonManager::Save(FString name, FVector loc, FRotator rot)
 	rotation->SetNumberField("Y", rot.Yaw);
 	rotation->SetNumberField("Z", rot.Roll);
 
-	jsonMap->Find(name)->ToSharedRef()->SetStringField("Name", name);
-	jsonMap->Find(name)->ToSharedRef()->SetObjectField("Location", location);
-	jsonMap->Find(name)->ToSharedRef()->SetObjectField("Rotation", rotation);
+	saveMap->Find(name)->ToSharedRef()->SetStringField("Name", name);
+	saveMap->Find(name)->ToSharedRef()->SetObjectField("Location", location);
+	saveMap->Find(name)->ToSharedRef()->SetObjectField("Rotation", rotation);
+}
 
+void JsonManager::Save()
+{
+	FString jsonStr = " ";
+	TSharedRef<TJsonWriter<>> jsonWriter = TJsonWriterFactory<>::Create(&jsonStr);
 
-	jsonMap->GenerateKeyArray(myArr);
+	TSharedPtr<FJsonObject> jsonObj = MakeShareable(new FJsonObject);
 
-	for (int a = 0; a < jsonMap->Num(); a++)
+	saveMap->GenerateKeyArray(myArr);
+
+	for (int a = 0; a < saveMap->Num(); a++)
 	{
-		jsonObj->SetObjectField(myArr[a], jsonMap->Find(myArr[a])->ToSharedRef());
+		jsonObj->SetObjectField(myArr[a], saveMap->Find(myArr[a])->ToSharedRef());
 		//GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Blue, myArr[a]);
 	}
 
 	FJsonSerializer::Serialize(jsonObj.ToSharedRef(), jsonWriter);
 
 	FFileHelper::SaveStringToFile(*jsonStr, *filePath, FFileHelper::EEncodingOptions::ForceUTF8WithoutBOM);
-
-	isDeserialized = false;
-
 }
 
-void JsonManager::LoadInit()
+void JsonManager::LoadInit(TArray<FString> objs)
 {
-	isDeserialized = true;
 
 	FString loadStr = " ";
 	FFileHelper::LoadFileToString(loadStr, *filePath);
-	TSharedPtr<FJsonObject> readObj = MakeShareable(new FJsonObject);
 	TSharedRef<TJsonReader<TCHAR>> jsonReader = TJsonReaderFactory<TCHAR>::Create(loadStr);
+
+	TSharedPtr<FJsonObject> readObj = MakeShareable(new FJsonObject);
+
 	FJsonSerializer::Deserialize(jsonReader, readObj);
-
-	//GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Blue, "StartPrinting");
-	for (int a = 0; a < jsonMap->Num(); a++)
+	
+	for (int a=0; a<objs.Num(); a++)
 	{
-		//readObj.ToSharedRef()->GetObjectField(myArr[a]);
-		loadMap->Add(myArr[a], readObj);
-		//GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Blue, loadMap->Find(myArr[a])->Get()->GetObjectField(myArr[a])->GetStringField("Name"));
-		//GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Blue, myArr[a]);
+		loadMap->Add(objs[a], readObj->GetObjectField(objs[a]));		
 	}
-
-	//GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Blue, "EndPrinting");
-
-	//jsonObj = jsonMap->Find(readObj.ToSharedRef()->GetObjectField);
-
-
 }
 
 TSharedPtr<ObjectInfo> JsonManager::Load(FString name)
 {
+	if (loadMap->Num() == 0)
 	{
-		FScopeLock Lock(&criticalSection);
-		if (!isDeserialized)
-		{
-			LoadInit();
-		}
+		GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Blue, name + "Array size is 0");
+		return nullptr;
 	}
-	if (loadMap->Num() == 0) return nullptr;
-	if (!loadMap->Find(name)) return nullptr;
+	if (!loadMap->Find(name))
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Blue, name + "NotFound");
+		return nullptr;
+	}
 
 	TSharedPtr<ObjectInfo> myInfo = MakeShareable(new ObjectInfo);
 
-	TSharedPtr<FJsonObject> locObj = loadMap->Find(name)->Get()->GetObjectField(name)->GetObjectField("Location");
-	TSharedPtr<FJsonObject> rotObj = loadMap->Find(name)->Get()->GetObjectField(name)->GetObjectField("Rotation");
+	TSharedPtr<FJsonObject> locObj = loadMap->Find(name)->Get()->GetObjectField("Location");
+	TSharedPtr<FJsonObject> rotObj = loadMap->Find(name)->Get()->GetObjectField("Rotation");
 
 	/*GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Blue, name);
 	GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Blue, loadMap->Find(name)->Get()->GetObjectField(name)->GetStringField("Name"));
 	GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Blue, "End");*/
-
-	//double num = loadMap->Find(name)->ToSharedRef()->GetObjectField("Location")->GetNumberField("X");
-
-	//TSharedPtr<FJsonValue> x = locObj->Values
-
-	//GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Blue, );
 
 	FVector loc(locObj->GetNumberField("X"), locObj->GetNumberField("Y"), locObj->GetNumberField("Z"));
 	FRotator rot(rotObj->GetNumberField("X"), rotObj->GetNumberField("Y"), rotObj->GetNumberField("Z"));

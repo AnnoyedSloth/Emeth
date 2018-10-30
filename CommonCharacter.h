@@ -17,6 +17,15 @@ public:
 	//Default built-in functions.
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
+
+	UFUNCTION(BlueprintCallable, Category = Data)
+	void LoadObjData();
+	
+	UPROPERTY(VisibleAnywhere, Category = Data)
+		class ASaveManager* saveManager;
+
+	UFUNCTION(BlueprintCallable, Category = Data)
+		void SetManager(ASaveManager *manager);
 	
 	//Player attack related functions
 	void OnAttack();

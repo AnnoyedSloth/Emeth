@@ -3,7 +3,9 @@
 #include "CommonCharacter.h"
 #include "Weapon.h"
 #include "Projectile.h"
+#include "MyPlayer.h"
 #include "ParticlePlay.h"
+#include "SaveManager.h"
 #include "JsonManager.h"
 #include "Engine.h"
 
@@ -22,13 +24,29 @@ void ACommonCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
+	//TSharedPtr<ObjectInfo> myInfo = MakeShareable(new ObjectInfo);
+	//myInfo = JsonManager::GetInstance()->Load(GetName());
+	//if (myInfo.IsValid())
+	//{
+	//	SetActorLocationAndRotation(myInfo->loc, myInfo->rot, false);
+	//	GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Blue, myInfo->rot.ToString());
+	//}
+}
+
+void ACommonCharacter::SetManager(ASaveManager *manager)
+{
+	saveManager = manager;
+	//if (saveManager) saveManager->PushObj(this);
+}
+
+void ACommonCharacter::LoadObjData()
+{
 	TSharedPtr<ObjectInfo> myInfo = MakeShareable(new ObjectInfo);
 	myInfo = JsonManager::GetInstance()->Load(GetName());
-	if (myInfo.IsValid())
-	{
-		SetActorLocationAndRotation(myInfo->loc, myInfo->rot, false);
-		GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Blue, myInfo->rot.ToString());
-	}
+	if(myInfo.IsValid()) SetActorLocationAndRotation(myInfo->loc, myInfo->rot, false);
+	else
+		GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Blue, this->GetName() + "NotFound");
+	//if (myInfo.IsValid()) GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Blue, myInfo->loc.ToString()); 
 }
 
 void ACommonCharacter::Tick(float DeltaTime)
@@ -123,7 +141,6 @@ void ACommonCharacter::OnHit(float DamageTaken, struct FDamageEvent const& Damag
 	{
 		ApplyDamageMomentum(DamageTaken, DamageEvent, PawnInstigator, DamageCauser);		
 	}
-	JsonManager::GetInstance()->Save(GetName(), GetActorLocation(), GetActorRotation());
 }
 
 void ACommonCharacter::Die(float KillingDamage, struct FDamageEvent const& DamageEvent, AController* Killer, class AActor* DamageCauser)
@@ -138,6 +155,7 @@ void ACommonCharacter::Die(float KillingDamage, struct FDamageEvent const& Damag
 
 	Killer = GetDamageInstigator(Killer, *DamageType);
 
+	if(saveManager)saveManager->RemoveObj(this);
 	// 오브젝트 시간과 관계있는 값
 	//GetWorldTimerManager().ClearAllTimersForObject(this);
 

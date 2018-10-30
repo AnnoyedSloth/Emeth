@@ -42,9 +42,21 @@ class EMETH_API AMyPlayer : public ACommonCharacter
 public:
 	AMyPlayer();
 
+	UFUNCTION(BlueprintCallable, Category = Data)
+		void SetSaveManager(ASaveManager* manager);
+	UFUNCTION(BlueprintCallable, Category = Data)
+		void SaveData();
+	UFUNCTION(BlueprintCallable, Category = Data)
+		void LoadData();
+	UFUNCTION(BlueprintCallable, Category = Data)
+
+
 	virtual void PostInitializeComponents() override;
 
 	virtual void OnHit(float DamageTaken, struct FDamageEvent const& DamageEvent, class APawn* PawnInstigator, class AActor* DamageCauser) override;
+
+	UPROPERTY(VisibleAnywhere, Category = Save)
+		class ASaveManager* SaveManagerObject = nullptr;
 
 	UPROPERTY(EditDefaultsOnly, Category = Movement)
 		float walkSpeed = 300.0f;

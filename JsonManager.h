@@ -11,7 +11,7 @@ struct ObjectInfo
 {
 	FVector loc;
 	FRotator rot;
-	
+	FString tag;
 };
 
 class EMETH_API JsonManager
@@ -20,10 +20,9 @@ private:
 	JsonManager();
 	static JsonManager *instance;
 
-	TMap<FString, TSharedPtr<FJsonObject>> *jsonMap;
+	TMap<FString, TSharedPtr<FJsonObject>> *saveMap;
 	TMap<FString, TSharedPtr<FJsonObject>> *loadMap;
 	TArray<FString> myArr;
-	bool isDeserialized;
 
 	FCriticalSection criticalSection;
 
@@ -33,7 +32,9 @@ public:
 	~JsonManager();
 
 	static JsonManager *GetInstance();
-	void Save(FString name, FVector loc, FRotator rot);
-	void LoadInit();
+	void Save();
+	void ClearMap();
+	void SendData(FString name, FVector loc, FRotator rot);
+	void LoadInit(TArray<FString> objs);
 	TSharedPtr<ObjectInfo> Load(FString name);
 };

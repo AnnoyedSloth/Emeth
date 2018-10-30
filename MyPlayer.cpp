@@ -5,6 +5,7 @@
 #include "Projectile.h"
 #include "Engine.h"
 #include "ParticlePlay.h"
+#include "SaveManager.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/InputComponent.h"
@@ -66,13 +67,41 @@ void AMyPlayer::BeginPlay()
 {
 	Super::BeginPlay();
 
+	//if (UGameplayStatics::GetCurrentLevelName == stageName)
+	if(GetWorld()->GetMapName() == "InGameLevel")
+	{
+	}
+
+}
+
+void AMyPlayer::SetSaveManager(ASaveManager* manager)
+{
+	if (manager)
+	{
+		SaveManagerObject = manager;
+		return;
+	}
+
+	//Finding SaveManager_BP to save data
+	TArray<AActor*> foundActors;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASaveManager::StaticClass(), foundActors);
+
+	for (AActor* actor : foundActors)
+	{
+		ASaveManager *saveMgr = Cast<ASaveManager>(actor);
+		if (saveMgr && saveMgr->GetName().Contains("SaveManager_BP"))
+		{
+			SaveManagerObject = saveMgr;
+		}
+	}
+	if (SaveManagerObject) SaveManagerObject->SetSaveManager();
 }
 
 void AMyPlayer::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if (isHealing) Energy += 5.0f * DeltaTime;
+	if (isHealing) Energy += 10.0f * DeltaTime;
 
 	if (Energy <= 0)
 	{
@@ -158,9 +187,32 @@ void AMyPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 	PlayerInputComponent->BindAction("TakeDamage", IE_Pressed, this, &AMyPlayer::TakeDamageSelf);
 	PlayerInputComponent->BindAction("Ray", IE_Pressed, this, &AMyPlayer::LineTraceTeleport);
+	PlayerInputComponent->BindAction("Save", IE_Pressed, this, &AMyPlayer::SaveData);
 
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
+}
+
+void AMyPlayer::SaveData()
+{
+	if (SaveManagerObject)
+	{
+		SaveManagerObject->PushObj(this);
+		SaveManagerObject->SaveAll();
+	}
+}
+
+void AMyPlayer::LoadData()
+{
+	if (SaveManagerObject)
+	{
+		SaveManagerObject->PushObj(this);
+		SaveManagerObject->LoadAll();
+	}
+
+	//TSharedPtr<ObjectInfo> myInfo = MakeShareable(new ObjectInfo);
+	//myInfo = JsonManager::GetInstance()->Load(GetName());
+	//if (myInfo.IsValid()) SetActorLocationAndRotation(myInfo->loc, myInfo->rot, false);
 }
 
 void AMyPlayer::MoveForward(float value)
@@ -301,7 +353,7 @@ void AMyPlayer::ZoomIn()
 	isInZoom = true; 
 	fpsCamera->SetRelativeLocation(FVector(150, 30, 64), false);
 
-	if(IsJumpProvidingForce()) GetCharacterMovement()->SetMovementMode(MOVE_Falling);
+	if(IsJumping()) GetCharacterMovement()->SetMovementMode(MOVE_Falling);
 	else GetCharacterMovement()->SetMovementMode(MOVE_None);
 
 	//SetActorRotation(fpsCamera->GetForwardVector().ToOrientationQuat());
