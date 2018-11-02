@@ -21,31 +21,32 @@ private:
 	int randomAnim = 0;
 
 	UPROPERTY(VisibleAnywhere, Category = Pawn)
-		class ACommonCharacter* MyPawn;
+		class ACommonCharacter* owningPawn;
 
+	UPROPERTY(EditAnywhere, Category = Animation)
+		TArray<UAnimMontage*> AttackAnim;
+
+	UPROPERTY(EditAnywhere, Category = Weapon)
+		bool duringAttack;
+
+	UPROPERTY(EditDefaultsOnly, Category = Weapon)
+		bool isAttackStarted;
+
+	UPROPERTY(EditAnywhere, Category = Damage)
+		float damage;
 public:
 
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Animation)
-		TArray<UAnimMontage*> AttackAnim;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Weapon)
-		bool duringAttack;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Weapon)
-		bool isAttackStarted;
 
 	// Sets default values for this actor's properties
 	AWeapon(const class FObjectInitializer& ObjectInitializer);
 	void SetOwningPawn(ACommonCharacter* newOwner);
 
 	UFUNCTION(BlueprintCallable, Category = Pawn)
-	ACommonCharacter *GetOwningPawn() const { return MyPawn; }
+	ACommonCharacter *GetOwningPawn() const { return owningPawn; }
 
 	void AttachMeshToPawn();
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Damage)
-		float damage;
 
 	UFUNCTION()
 		void OnEquip(const AWeapon* lastWeapon);

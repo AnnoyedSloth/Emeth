@@ -11,52 +11,21 @@ class EMETH_API ACommonCharacter : public ACharacter
 {
 	GENERATED_BODY()
 
-public:
-	ACommonCharacter();
-	
-	//Default built-in functions.
-	virtual void BeginPlay() override;
-	virtual void Tick(float DeltaTime) override;
-
-	UFUNCTION(BlueprintCallable, Category = Data)
-	void LoadObjData();
-	
-	UPROPERTY(VisibleAnywhere, Category = Data)
-		class ASaveManager* saveManager;
-
-	UFUNCTION(BlueprintCallable, Category = Data)
-		void SetManager(ASaveManager *manager);
-	
-	//Player attack related functions
-	void OnAttack();
-	void OnFire();
-	void SetAttackStatus(bool isAttack);
-	bool GetAttackStatus() const { return isDuringAttack; }
-
+protected:
 	//Player status variables
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Resource)
 		float Health;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Resource)
 		float Energy;
-	UFUNCTION()
-		float GetEnergy() const { return Energy; }
 
-	//Weapon Inventory related Arraies, variables
+	//Weapon Inventory related variables, functions
+		//Weapon Inventory related Arraies, variables
 	UPROPERTY(EditAnywhere, Category = Inventory)
 		TArray<TSubclassOf<class AWeapon>> DefaultInventoryClasses;
 	UPROPERTY(EditDefaultsOnly, Category = Inventory)
 		TArray<TSubclassOf<class AProjectile>> DefaultProjectileClasses;
 	UPROPERTY(EditAnywhere, Category = Inventory)
 		class AWeapon* CurrentWeapon;
-	FName GetWeaponAttachPoint() const;	
-	void EquipWeapon(class AWeapon* weapon);
-	void OnChangeWeapon();
-	
-	virtual float TakeDamage(float Damage, struct FDamageEvent const & DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
-
-protected:
-
-	//Weapon Inventory related variables, functions
 	UPROPERTY(EditDefaultsOnly, Category = Inventory)
 		FName weaponAttachPoint;
 	TArray<class AWeapon*> Inventory;
@@ -78,7 +47,38 @@ protected:
 
 	//Dying Event 
 	virtual void OnHit(float DamageTaken, struct FDamageEvent const& DamageEvent, class APawn* PawnInstigator, class AActor* DamageCauser);
-	virtual void Die(float KillingDamage, struct FDamageEvent const& DamageEvent, AController* Killer, class AActor* DamageCauser);	
+	virtual void Die(float KillingDamage, struct FDamageEvent const& DamageEvent, AController* Killer, class AActor* DamageCauser);
 	virtual void OnDieAnimationEnd();
 
+	//Save Manager
+	UPROPERTY(VisibleAnywhere, Category = Data)
+		class ASaveManager* saveManager;
+
+public:
+	ACommonCharacter();
+	
+	//Default built-in functions.
+	virtual void BeginPlay() override;
+	virtual void Tick(float DeltaTime) override;
+
+	UFUNCTION(BlueprintCallable, Category = Data)
+	void LoadObjData();
+
+	UFUNCTION(BlueprintCallable, Category = Data)
+		void SetManager(ASaveManager *manager);
+	
+	//Player attack related functions
+	void OnAttack();
+	void OnFire();
+	void SetAttackStatus(bool isAttack);
+	bool GetAttackStatus() const { return isDuringAttack; }
+
+	UFUNCTION()
+		float GetEnergy() const { return Energy; }
+
+	FName GetWeaponAttachPoint() const;	
+	void EquipWeapon(class AWeapon* weapon);
+	void OnChangeWeapon();
+	
+	virtual float TakeDamage(float Damage, struct FDamageEvent const & DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 };

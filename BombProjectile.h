@@ -23,8 +23,6 @@ class EMETH_API ABombProjectile : public AProjectile
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 		class USphereComponent* sphereCollision;
 
-protected:
-	
 	UPROPERTY(EditAnywhere, Category = Parameter)
 		float explosionDelay;
 

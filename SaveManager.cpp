@@ -52,6 +52,21 @@ void ASaveManager::LoadAll()
 
 void ASaveManager::SetSaveManager()
 {
+	//GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Blue, "SetSaveManager Called");
+
+	TArray<AActor*> foundActors;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ACommonCharacter::StaticClass(), foundActors);
+
+	for (AActor* actor : foundActors)
+	{
+		ACommonCharacter* pawnActor = Cast<ACommonCharacter>(actor);
+		if (pawnActor)
+		{
+			//GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Blue, pawnActor->GetName());
+			objs.AddUnique(pawnActor);
+		}
+	}
+
 	for (ACommonCharacter* obj : objs)
 	{
 		obj->SetManager(this);

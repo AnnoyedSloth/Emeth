@@ -2,6 +2,7 @@
 
 #include "Projectile.h"
 #include "CommonCharacter.h"
+#include "MyPlayer.h"
 #include "Engine.h"
 
 
@@ -27,9 +28,15 @@ AProjectile::AProjectile(const class FObjectInitializer& ObjectInitializer)
 
 }
 
+void AProjectile::BeginPlay()
+{
+	Super::BeginPlay();
+
+}
 
 void AProjectile::NotifyActorBeginOverlap(AActor* OtherActor)
 {
+	if (!owningPawn) return;
 	Super::NotifyActorBeginOverlap(OtherActor);
 
 	//GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Red, GetOwner()->GetActorLabel());
@@ -45,8 +52,9 @@ void AProjectile::NotifyActorBeginOverlap(AActor* OtherActor)
 
 void AProjectile::SetOwningPawn(ACommonCharacter* owner)
 {
-	if (myPawn != owner)
-	{
-		myPawn = owner;
-	}
+	if (!owner) return;
+	AMyPlayer* player = Cast<AMyPlayer>(owner);
+
+	if(player)
+		owningPawn = player;
 }

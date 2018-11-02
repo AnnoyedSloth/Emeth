@@ -44,8 +44,8 @@ void ACommonCharacter::LoadObjData()
 	TSharedPtr<ObjectInfo> myInfo = MakeShareable(new ObjectInfo);
 	myInfo = JsonManager::GetInstance()->Load(GetName());
 	if(myInfo.IsValid()) SetActorLocationAndRotation(myInfo->loc, myInfo->rot, false);
-	else
-		GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Blue, this->GetName() + "NotFound");
+	//else
+		//GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Blue, this->GetName() + "NotFound");
 	//if (myInfo.IsValid()) GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Blue, myInfo->loc.ToString()); 
 }
 

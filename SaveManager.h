@@ -11,10 +11,10 @@ class EMETH_API ASaveManager : public AActor
 {
 	GENERATED_BODY()
 
+	UPROPERTY(EditAnywhere, Category = Actors)
+		TArray<class ACommonCharacter*> objs;
 	
 public:
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = Actors)
-		TArray<class ACommonCharacter*> objs;
 	// Sets default values for this actor's properties
 	ASaveManager();
 
@@ -33,7 +33,6 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-public:	
 
 	
 	

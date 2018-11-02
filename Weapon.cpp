@@ -36,18 +36,18 @@ void AWeapon::SelfDestroy()
 
 void AWeapon::SetOwningPawn(ACommonCharacter* newOwner)
 {
-	if (MyPawn != newOwner)
+	if (owningPawn != newOwner)
 	{
-		MyPawn = newOwner;
+		owningPawn = newOwner;
 	}
 }
 
 void AWeapon::AttachMeshToPawn()
 {
-	if (MyPawn)
+	if (owningPawn)
 	{
-		USkeletalMeshComponent* PawnMesh = MyPawn->GetMesh();
-		FName AttachPoint = MyPawn->GetWeaponAttachPoint();
+		USkeletalMeshComponent* PawnMesh = owningPawn->GetMesh();
+		FName AttachPoint = owningPawn->GetWeaponAttachPoint();
 
 		//WeaponMesh->AttachTo(PawnMesh, AttachPoint);
 		WeaponMesh->AttachToComponent(PawnMesh, FAttachmentTransformRules::KeepRelativeTransform, AttachPoint);
@@ -69,7 +69,7 @@ void AWeapon::NotifyActorBeginOverlap(AActor* OtherActor)
 {
 	Super::NotifyActorBeginOverlap(OtherActor);
 
-	if (OtherActor->IsA(ACommonCharacter::StaticClass()) && OtherActor != MyPawn && duringAttack && !OtherActor->ActorHasTag(MyPawn->Tags[0]))
+	if (OtherActor->IsA(ACommonCharacter::StaticClass()) && OtherActor != owningPawn && duringAttack && !OtherActor->ActorHasTag(owningPawn->Tags[0]))
 	{
 		UGameplayStatics::ApplyDamage(OtherActor, damage, NULL, this, UDamageType::StaticClass());
 
@@ -84,7 +84,7 @@ void AWeapon::StartAttack()
 {
 	if (!isAttackStarted)
 	{
-		UAnimInstance* AnimInstance = MyPawn->GetMesh()->GetAnimInstance();
+		UAnimInstance* AnimInstance = owningPawn->GetMesh()->GetAnimInstance();
 
 		randomAnim = FMath::Rand()%AttackAnim.Num();
 
@@ -92,7 +92,7 @@ void AWeapon::StartAttack()
 		//duringAttack = true;
 
 		isAttackStarted = true;
-		MyPawn->SetAttackStatus(true);
+		owningPawn->SetAttackStatus(true);
 
 		FTimerHandle AttackHandle;
 		GetWorldTimerManager().SetTimer(AttackHandle, this, &AWeapon::SetAttackStatus, .3f, false);
@@ -104,11 +104,11 @@ void AWeapon::StartAttack()
 
 void AWeapon::StopAttack()
 {
-	UAnimInstance* AnimInstance = MyPawn->GetMesh()->GetAnimInstance();
+	UAnimInstance* AnimInstance = owningPawn->GetMesh()->GetAnimInstance();
 	AnimInstance->Montage_Stop(1.0f, AttackAnim[randomAnim]);
 	duringAttack = false;
 	isAttackStarted = false;
-	MyPawn->SetAttackStatus(false);
+	owningPawn->SetAttackStatus(false);
 }
 
 void AWeapon::SetAttackStatus()

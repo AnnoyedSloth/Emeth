@@ -12,7 +12,6 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Controller.h"
 #include "GameFramework/SpringArmComponent.h"
-#include "JsonManager.h"
 
 // Sets default values
 AMyPlayer::AMyPlayer()
@@ -68,9 +67,6 @@ void AMyPlayer::BeginPlay()
 	Super::BeginPlay();
 
 	//if (UGameplayStatics::GetCurrentLevelName == stageName)
-	if(GetWorld()->GetMapName() == "InGameLevel")
-	{
-	}
 
 }
 
@@ -89,12 +85,13 @@ void AMyPlayer::SetSaveManager(ASaveManager* manager)
 	for (AActor* actor : foundActors)
 	{
 		ASaveManager *saveMgr = Cast<ASaveManager>(actor);
-		if (saveMgr && saveMgr->GetName().Contains("SaveManager_BP"))
+		if (saveMgr)
 		{
 			SaveManagerObject = saveMgr;
 		}
 	}
 	if (SaveManagerObject) SaveManagerObject->SetSaveManager();
+	 //GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Blue, "No Save manager detected.");
 }
 
 void AMyPlayer::Tick(float DeltaTime)
@@ -118,6 +115,12 @@ void AMyPlayer::Tick(float DeltaTime)
 	else
 	{
 		healingTime -= DeltaTime;
+		isHealing = false;
+	}
+
+	if (GetCharacterMovement()->MaxWalkSpeed > walkSpeed)
+	{
+		Energy -= 10.0f * DeltaTime;
 		isHealing = false;
 	}
 
@@ -187,7 +190,6 @@ void AMyPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 	PlayerInputComponent->BindAction("TakeDamage", IE_Pressed, this, &AMyPlayer::TakeDamageSelf);
 	PlayerInputComponent->BindAction("Ray", IE_Pressed, this, &AMyPlayer::LineTraceTeleport);
-	PlayerInputComponent->BindAction("Save", IE_Pressed, this, &AMyPlayer::SaveData);
 
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
@@ -223,9 +225,6 @@ void AMyPlayer::MoveForward(float value)
 		const FRotator Rotation = Controller->GetControlRotation();
 		const FRotator YawRotation(0, Rotation.Yaw, 0);
 
-		if (GetCharacterMovement()->MaxWalkSpeed == runSpeed)
-			Energy -= 10.0f * GetWorld()->GetDeltaSeconds();
-
 		//UGameplayStatics::PlaySoundAtLocation(this, walkSound, GetActorLocation());
 
 		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
@@ -241,9 +240,6 @@ void AMyPlayer::MoveRight(float value)
 	{
 		const FRotator Rotation = Controller->GetControlRotation();
 		const FRotator YawRotation(0, Rotation.Yaw, 0);
-
-		if (GetCharacterMovement()->MaxWalkSpeed == runSpeed)
-			Energy -= 10.0f * GetWorld()->GetDeltaSeconds();
 
 		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
 		AddMovementInput(Direction, value);
@@ -353,7 +349,7 @@ void AMyPlayer::ZoomIn()
 	isInZoom = true; 
 	fpsCamera->SetRelativeLocation(FVector(150, 30, 64), false);
 
-	if(IsJumping()) GetCharacterMovement()->SetMovementMode(MOVE_Falling);
+	if(IsJumpProvidingForce()) GetCharacterMovement()->SetMovementMode(MOVE_Falling);
 	else GetCharacterMovement()->SetMovementMode(MOVE_None);
 
 	//SetActorRotation(fpsCamera->GetForwardVector().ToOrientationQuat());
@@ -412,7 +408,8 @@ void AMyPlayer::OnFire()
 		UWorld* const World = GetWorld();
 		if (World != NULL)
 		{
-			World->SpawnActor<AProjectile>(DefaultProjectileClasses[0], SpawnLocation, SpawnRotation)->SetOwningPawn(this);
+			AProjectile* newPjt = World->SpawnActor<AProjectile>(DefaultProjectileClasses[0], SpawnLocation, SpawnRotation);
+			newPjt->SetOwningPawn(this);
 		}
 	}
 }

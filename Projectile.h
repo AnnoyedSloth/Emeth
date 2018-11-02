@@ -14,9 +14,8 @@ class EMETH_API AProjectile : public AActor
 {
 	GENERATED_BODY()
 
-	class ACommonCharacter *myPawn;
-public:
-	AProjectile(const class FObjectInitializer& ObjectInitializer);
+protected:
+	class ACommonCharacter *owningPawn = nullptr;
 
 	UPROPERTY(VisibleDefaultsOnly, Category = Projectile)
 		class USphereComponent* ProjectileCollision;
@@ -24,11 +23,16 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = "true"))
 		class UProjectileMovementComponent* ProjectileMovement;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Projectile)
+	UPROPERTY(EditAnywhere, Category = Projectile)
 		FName instigatorName;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Projectile)
+	UPROPERTY(EditAnywhere, Category = Projectile)
 		float damage;
+
+public:
+	AProjectile(const class FObjectInitializer& ObjectInitializer);
+
+	virtual void BeginPlay() override;
 
 	virtual void NotifyActorBeginOverlap(AActor* OtherActor);
 
@@ -36,6 +40,6 @@ public:
 	FORCEINLINE class UProjectileMovementComponent* GetProjectileMovement() const { return ProjectileMovement; }
 
 	void SetOwningPawn(ACommonCharacter *owner);
-	ACommonCharacter *GetOwningPawn() const { return myPawn; }
+	ACommonCharacter *GetOwningPawn() const { return owningPawn; }
 	
 };

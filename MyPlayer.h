@@ -11,7 +11,7 @@ class EMETH_API AMyPlayer : public ACommonCharacter
 {
 	GENERATED_BODY()
 
-		UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 		class USpringArmComponent* CameraBoom;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
@@ -39,22 +39,6 @@ class EMETH_API AMyPlayer : public ACommonCharacter
 	UPROPERTY(VisibleAnywhere, Category = Skill)
 		bool isHiding;
 
-public:
-	AMyPlayer();
-
-	UFUNCTION(BlueprintCallable, Category = Data)
-		void SetSaveManager(ASaveManager* manager);
-	UFUNCTION(BlueprintCallable, Category = Data)
-		void SaveData();
-	UFUNCTION(BlueprintCallable, Category = Data)
-		void LoadData();
-	UFUNCTION(BlueprintCallable, Category = Data)
-
-
-	virtual void PostInitializeComponents() override;
-
-	virtual void OnHit(float DamageTaken, struct FDamageEvent const& DamageEvent, class APawn* PawnInstigator, class AActor* DamageCauser) override;
-
 	UPROPERTY(VisibleAnywhere, Category = Save)
 		class ASaveManager* SaveManagerObject = nullptr;
 
@@ -70,15 +54,6 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = Animation)
 		UAnimMontage* TumbleAnim;
 
-	UFUNCTION(BlueprintCallable, Category = "AI")
-		bool GetHide() const { return isHiding; }
-
-	UFUNCTION(BlueprintCallable, Category = "Inventory")
-		int32 GetCurWeapon() const { return Inventory.IndexOfByKey(CurrentWeapon); }
-
-	UFUNCTION()
-		void OnTumbleEnded(UAnimMontage* montage, bool bInterrupted);
-
 protected:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
@@ -92,45 +67,64 @@ protected:
 
 	virtual void Jump() override;
 
-	UFUNCTION(BlueprintCallable, Category = "Move")
+	UFUNCTION(BlueprintCallable, Category = Move)
 		void Walk();
-	UFUNCTION(BlueprintCallable, Category = "Move")
+	UFUNCTION(BlueprintCallable, Category = Move)
 		void Run();
 
-
 	//Basic skills
-	UFUNCTION(BlueprintCallable, Category = "AI")
+	UFUNCTION(BlueprintCallable, Category = AI)
 		void Hide();
-	UFUNCTION(BlueprintCallable, Category = "MouseAction")
+	UFUNCTION(BlueprintCallable, Category = MouseAction)
 		void ZoomIn();
-	UFUNCTION(BlueprintCallable, Category = "MouseAction")
+	UFUNCTION(BlueprintCallable, Category = MouseAction)
 		void ZoomOut();
 
-	UFUNCTION(BlueprintCallable, Category = "Math")
+	UFUNCTION(BlueprintCallable, Category = Math)
 		FRotator SetYToZero(FRotator rotation) const { rotation.Pitch = 0; return rotation; }
 
 
 	//These functions will used when testing
-	UFUNCTION(BlueprintCallable, Category = "Debug")
+	UFUNCTION(BlueprintCallable, Category = Debug)
 		void TakeDamageSelf();
-	UFUNCTION(BlueprintCallable, Category = "Debug")
+	UFUNCTION(BlueprintCallable, Category = Debug)
 		void LineTraceTeleport();
 
-
 	//Actions which related to battle
-	UFUNCTION(BlueprintCallable, Category = "Action")
+	UFUNCTION(BlueprintCallable, Category = Action)
 		void OnAttack();
-	UFUNCTION(BlueprintCallable, Category = "Action")
+	UFUNCTION(BlueprintCallable, Category = Action)
 		void OnFire();
-	UFUNCTION(BlueprintCallable, Category = "Action")
+	UFUNCTION(BlueprintCallable, Category = Action)
 		void ThrowBomb();
-	UFUNCTION(BlueprintCallable, Category = "Action")
+	UFUNCTION(BlueprintCallable, Category = Action)
 		bool Tumble();
-	UFUNCTION(BlueprintCallable, Category = "Status")
+	UFUNCTION(BlueprintCallable, Category = Status)
 		bool GetTumbleStatus() const { return isTumbling; }
 
-
 public:
+	AMyPlayer();
+
+	UFUNCTION(BlueprintCallable, Category = Data)
+		void SetSaveManager(ASaveManager* manager);
+	UFUNCTION(BlueprintCallable, Category = Data)
+		void SaveData();
+	UFUNCTION(BlueprintCallable, Category = Data)
+		void LoadData();
+
+	virtual void PostInitializeComponents() override;
+
+	virtual void OnHit(float DamageTaken, struct FDamageEvent const& DamageEvent, class APawn* PawnInstigator, class AActor* DamageCauser) override;
+
+	UFUNCTION(BlueprintCallable, Category = AI)
+		bool GetHide() const { return isHiding; }
+
+	UFUNCTION(BlueprintCallable, Category = Inventory)
+		int32 GetCurWeapon() const { return Inventory.IndexOfByKey(CurrentWeapon); }
+
+	UFUNCTION()
+		void OnTumbleEnded(UAnimMontage* montage, bool bInterrupted);
+
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	virtual void EquipWeapon(class AWeapon* weapon);
@@ -144,4 +138,6 @@ public:
 	void EnergyDown(float value, float delay);
 
 	virtual void SetCurrentWeapon(class AWeapon* newWeapon, class AWeapon* lastWeapon);
+
+
 };

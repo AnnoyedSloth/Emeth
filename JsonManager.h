@@ -14,7 +14,7 @@ struct ObjectInfo
 	FString tag;
 };
 
-class EMETH_API JsonManager
+static class EMETH_API JsonManager
 {
 private:
 	JsonManager();
@@ -24,7 +24,7 @@ private:
 	TMap<FString, TSharedPtr<FJsonObject>> *loadMap;
 	TArray<FString> myArr;
 
-	FCriticalSection criticalSection;
+	//FCriticalSection criticalSection;
 
 	const FString filePath = FPaths::GameDir() + TEXT("/Content/Json/myJson.json");
 
