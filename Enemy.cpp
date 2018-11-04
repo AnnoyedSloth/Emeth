@@ -114,7 +114,7 @@ void AEnemy::OnPlayerCaught(APawn* Pawn)
 	//GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green,myPlayer->GetName());
 	if (AIController && myPlayer)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Caught!"));
+		//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Caught!"));
 		AIController->SetPlayerCaught(myPlayer);
 		GetCharacterMovement()->MaxWalkSpeed = 500.0f;
 		
@@ -132,4 +132,12 @@ void AEnemy::PrintStatus()
 void AEnemy::OnAttack()
 {
 	if (CurrentWeapon && !(CurrentWeapon->GetAttackStatus())) CurrentWeapon->StartAttack();
+}
+
+void AEnemy::LoadObjData()
+{
+	Super::LoadObjData();
+
+	isSaw = false;
+	GetCharacterMovement()->MaxWalkSpeed = 100.0f;
 }

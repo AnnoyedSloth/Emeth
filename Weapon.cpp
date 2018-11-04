@@ -18,6 +18,12 @@ AWeapon::AWeapon(const class FObjectInitializer& ObjectInitializer)
 	WeaponMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	RootComponent = WeaponMesh;
 
+	weaponCollision = CreateDefaultSubobject<UCapsuleComponent>(TEXT("WeaponCollision"));
+	weaponCollision->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	weaponCollision->SetVisibility(true);
+	weaponCollision->Activate(true);
+	weaponCollision->SetupAttachment(WeaponMesh);
+
 	duringAttack = false;
 }
 
@@ -28,6 +34,30 @@ AWeapon::AWeapon(const class FObjectInitializer& ObjectInitializer)
 //	Destroy(WeaponCollision);
 //}
 
+void AWeapon::Tick(float deltaTime)
+{
+	Super::Tick(deltaTime);
+
+	if (!owningPawn) return;
+
+	if (duringAttack)
+	{
+		TArray<AActor*> overlapping;
+		if (!weaponCollision) return;
+
+		weaponCollision->GetOverlappingActors(overlapping, TSubclassOf<AActor>());
+
+		for (AActor* actor : overlapping)
+		{
+			if (!actor) continue;
+			if (actor != owningPawn && !actor->ActorHasTag(owningPawn->Tags[0]))
+			{
+				UGameplayStatics::ApplyDamage(actor, damage, NULL, this, UDamageType::StaticClass());
+				duringAttack = false;
+			}
+		}
+	}
+}
 
 void AWeapon::SelfDestroy()
 {
@@ -67,17 +97,16 @@ void AWeapon::UnEquip()
 
 void AWeapon::NotifyActorBeginOverlap(AActor* OtherActor)
 {
-	Super::NotifyActorBeginOverlap(OtherActor);
+	//Super::NotifyActorBeginOverlap(OtherActor);
 
-	if (OtherActor->IsA(ACommonCharacter::StaticClass()) && OtherActor != owningPawn && duringAttack && !OtherActor->ActorHasTag(owningPawn->Tags[0]))
-	{
-		UGameplayStatics::ApplyDamage(OtherActor, damage, NULL, this, UDamageType::StaticClass());
+	//if (OtherActor->IsA(ACommonCharacter::StaticClass()) && OtherActor != owningPawn && duringAttack && !OtherActor->ActorHasTag(owningPawn->Tags[0]))
+	//{
+	//	UGameplayStatics::ApplyDamage(OtherActor, damage, NULL, this, UDamageType::StaticClass());
 
 		//duringAttack = false;
 
 		//GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, "ApplyDamage");
-	}
-
+	//}
 }
 
 void AWeapon::StartAttack()
@@ -95,16 +124,19 @@ void AWeapon::StartAttack()
 		owningPawn->SetAttackStatus(true);
 
 		FTimerHandle AttackHandle;
-		GetWorldTimerManager().SetTimer(AttackHandle, this, &AWeapon::SetAttackStatus, .3f, false);
+		GetWorldTimerManager().SetTimer(AttackHandle, this, &AWeapon::SetAttackStatus, startTime, false);
 
 		FTimerHandle TimerHandle_StopAttack;
-		GetWorldTimerManager().SetTimer(TimerHandle_StopAttack, this, &AWeapon::StopAttack, 1.0f, false);
+		GetWorldTimerManager().SetTimer(TimerHandle_StopAttack, this, &AWeapon::StopAttack, endTime, false);
 	}
 }
 
 void AWeapon::StopAttack()
 {
+	if (!owningPawn) return;
 	UAnimInstance* AnimInstance = owningPawn->GetMesh()->GetAnimInstance();
+	if (!AnimInstance) return;
+
 	AnimInstance->Montage_Stop(1.0f, AttackAnim[randomAnim]);
 	duringAttack = false;
 	isAttackStarted = false;
@@ -114,4 +146,5 @@ void AWeapon::StopAttack()
 void AWeapon::SetAttackStatus()
 {
 	duringAttack = true;
+
 }

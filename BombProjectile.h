@@ -32,6 +32,9 @@ class EMETH_API ABombProjectile : public AProjectile
 	UFUNCTION()
 		void BombExplosion();
 
+	//UFUNCTION()
+		//void AddForceToObj(ADestructibleActor* actor);
+
 	virtual void BeginPlay();
 	virtual void Tick(float deltaTime);
 

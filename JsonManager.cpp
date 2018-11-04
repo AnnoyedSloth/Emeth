@@ -101,12 +101,12 @@ TSharedPtr<ObjectInfo> JsonManager::Load(FString name)
 {
 	if (loadMap->Num() == 0)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Blue, name + "Array size is 0");
+		//GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Blue, name + "Array size is 0");
 		return nullptr;
 	}
 	if (!loadMap->Find(name))
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Blue, name + "NotFound");
+		//GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Blue, name + "NotFound");
 		return nullptr;
 	}
 
@@ -127,6 +127,8 @@ TSharedPtr<ObjectInfo> JsonManager::Load(FString name)
 	
 	//GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Blue, myInfo->loc.ToString());
 	//GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Blue, myInfo->rot.ToString());
+
+	//GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Blue, "Load Line 131");
 
 	return myInfo;
 }

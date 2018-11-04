@@ -48,9 +48,6 @@ class EMETH_API AMyPlayer : public ACommonCharacter
 	UPROPERTY(EditDefaultsOnly, Category = Movement)
 		float runSpeed = 600.0f;
 
-	UPROPERTY(EditDefaultsOnly, Category = Sound)
-		class USoundBase* walkSound;
-
 	UPROPERTY(EditDefaultsOnly, Category = Animation)
 		UAnimMontage* TumbleAnim;
 
@@ -106,11 +103,13 @@ public:
 	AMyPlayer();
 
 	UFUNCTION(BlueprintCallable, Category = Data)
-		void SetSaveManager(ASaveManager* manager);
+		void SetSaveManager();
 	UFUNCTION(BlueprintCallable, Category = Data)
 		void SaveData();
 	UFUNCTION(BlueprintCallable, Category = Data)
 		void LoadData();
+	UFUNCTION(BlueprintCallable, Category = Data)
+		void LoadObjData();
 
 	virtual void PostInitializeComponents() override;
 
@@ -131,6 +130,10 @@ public:
 	virtual void SpawnDefaultInventory();
 	virtual void OnChangeWeapon();
 	virtual float TakeDamage(float Damage, struct FDamageEvent const & DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
+	virtual void Die(float KillingDamage, struct FDamageEvent const& DamageEvent, AController* Killer, class AActor* DamageCauser);
+
+	UFUNCTION(BlueprintImplementableEvent, meta = (DisplayName = "OnPlayerDie")) 
+		void PlayerDied();
 
 	void OnDagger();
 	void OnJavelin();

@@ -31,7 +31,11 @@ AProjectile::AProjectile(const class FObjectInitializer& ObjectInitializer)
 void AProjectile::BeginPlay()
 {
 	Super::BeginPlay();
+}
 
+void AProjectile::Tick(float deltaTime)
+{
+	Super::Tick(deltaTime);
 }
 
 void AProjectile::NotifyActorBeginOverlap(AActor* OtherActor)

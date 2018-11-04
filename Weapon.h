@@ -14,10 +14,7 @@ class EMETH_API AWeapon : public AActor
 private:
 	UPROPERTY(VisibleDefaultsOnly, Category = Weapon)
 		USkeletalMeshComponent* WeaponMesh;
-
-	UPROPERTY(VisibleAnywhere, Category = Collision)
-		class USphereComponent* WeaponCollision;
-
+	   
 	int randomAnim = 0;
 
 	UPROPERTY(VisibleAnywhere, Category = Pawn)
@@ -34,12 +31,22 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = Damage)
 		float damage;
+
+	UPROPERTY(EditAnywhere, Category = Weapon)
+		float startTime;
+	UPROPERTY(EditAnywhere, Category = Weapon)
+		float endTime;
+
+protected:
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+		class UCapsuleComponent* weaponCollision;
+
 public:
-
-
 
 	// Sets default values for this actor's properties
 	AWeapon(const class FObjectInitializer& ObjectInitializer);
+	virtual void Tick(float deltaTime);
+
 	void SetOwningPawn(ACommonCharacter* newOwner);
 
 	UFUNCTION(BlueprintCallable, Category = Pawn)

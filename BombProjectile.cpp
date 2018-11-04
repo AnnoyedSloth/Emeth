@@ -60,12 +60,19 @@ void ABombProjectile::BombExplosion()
 		ADestructibleActor* isDest = Cast<ADestructibleActor>(actor);
 		if (isDest)
 		{
-			GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, isDest->GetFName().ToString());
+			//GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, isDest->GetFName().ToString());
 			isDest->GetDestructibleComponent()->SetSimulatePhysics(true);
 			isDest->GetDestructibleComponent()->AddRadialForce(this->GetActorLocation(), impactRadius, 1000000.0f, RIF_Constant);
+
 		}
 		float alpha = (impactRadius - FVector::Distance(actor->GetActorLocation(), this->GetActorLocation())) / impactRadius;
 		UGameplayStatics::ApplyDamage(actor, FMath::Lerp(30, 100, alpha), NULL, this, UDamageType::StaticClass());
+	}
+
+	if (collisionSound)
+	{
+		UGameplayStatics::PlaySoundAtLocation(this, collisionSound, this->GetActorLocation());
+		//GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, "sound!");
 	}
 
 	Destroy();
@@ -75,7 +82,7 @@ void ABombProjectile::BombExplosion()
 void ABombProjectile::ProjectileOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult &SweepResult)
 {
 	if (OtherActor->Tags.Num() == 0) return;
-
+	if (!owningPawn) return;
 
 	//if(OtherActor-> == ECC_WorldStatic)
 	if (OtherActor->IsA(AActor::StaticClass()) && OtherActor->Tags[0] != instigatorName)

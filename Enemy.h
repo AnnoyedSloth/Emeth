@@ -52,6 +52,9 @@ public:
 		virtual void OnPlayerCaught(APawn* Pawn);
 
 
+	UFUNCTION(BlueprintCallable, Category = Data)
+		virtual void LoadObjData();
+
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = Pawn)
 		UAnimMontage* MeleeAnim;

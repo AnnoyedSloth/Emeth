@@ -37,13 +37,15 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = Weapon)
 		bool isDuringAttack;
 
-	//Weapon Animations & Particles
+	//Animations & Particles & Sounds
 	UPROPERTY(EditDefaultsOnly, Category = Pawn)
 		UAnimMontage* BehitAnim;
 	UPROPERTY(EditDefaultsOnly, Category = Pawn)
 		UAnimMontage* DeathAnim;
 	UPROPERTY(EditDefaultsOnly, Category = Pawn)
 		TSubclassOf<class AParticlePlay> bloodParticle;
+	UPROPERTY(EditDefaultsOnly, Category = Sound)
+		class USoundCue* hitSound;
 
 	//Dying Event 
 	virtual void OnHit(float DamageTaken, struct FDamageEvent const& DamageEvent, class APawn* PawnInstigator, class AActor* DamageCauser);
@@ -62,7 +64,7 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	UFUNCTION(BlueprintCallable, Category = Data)
-	void LoadObjData();
+	virtual void LoadObjData();
 
 	UFUNCTION(BlueprintCallable, Category = Data)
 		void SetManager(ASaveManager *manager);

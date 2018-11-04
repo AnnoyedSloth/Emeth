@@ -5,6 +5,7 @@
 #include "Projectile.h"
 #include "Engine.h"
 #include "ParticlePlay.h"
+#include "JsonManager.h"
 #include "SaveManager.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
@@ -39,7 +40,7 @@ AMyPlayer::AMyPlayer()
 
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
 	CameraBoom->SetupAttachment(RootComponent);
-	CameraBoom->TargetArmLength = walkSpeed;
+	CameraBoom->TargetArmLength = 300.0f;
 	CameraBoom->bUsePawnControlRotation = true;
 
 	fpsCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FPSCamera"));
@@ -70,14 +71,8 @@ void AMyPlayer::BeginPlay()
 
 }
 
-void AMyPlayer::SetSaveManager(ASaveManager* manager)
+void AMyPlayer::SetSaveManager()
 {
-	if (manager)
-	{
-		SaveManagerObject = manager;
-		return;
-	}
-
 	//Finding SaveManager_BP to save data
 	TArray<AActor*> foundActors;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASaveManager::StaticClass(), foundActors);
@@ -210,11 +205,24 @@ void AMyPlayer::LoadData()
 	{
 		SaveManagerObject->PushObj(this);
 		SaveManagerObject->LoadAll();
+		//SetActorLocationAndRotation();
 	}
 
 	//TSharedPtr<ObjectInfo> myInfo = MakeShareable(new ObjectInfo);
 	//myInfo = JsonManager::GetInstance()->Load(GetName());
 	//if (myInfo.IsValid()) SetActorLocationAndRotation(myInfo->loc, myInfo->rot, false);
+}
+
+void AMyPlayer::LoadObjData()
+{
+	TSharedPtr<ObjectInfo> myInfo = MakeShareable(new ObjectInfo);
+	myInfo = JsonManager::GetInstance()->Load("MyPlayer_Blueprint_C_0");
+
+	if (myInfo.IsValid()) SetActorLocationAndRotation(myInfo->loc, myInfo->rot, false);
+	else Destroy();
+	//else
+		//
+	//if (myInfo.IsValid()) GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Blue, myInfo->loc.ToString()); 
 }
 
 void AMyPlayer::MoveForward(float value)
@@ -225,7 +233,6 @@ void AMyPlayer::MoveForward(float value)
 		const FRotator Rotation = Controller->GetControlRotation();
 		const FRotator YawRotation(0, Rotation.Yaw, 0);
 
-		//UGameplayStatics::PlaySoundAtLocation(this, walkSound, GetActorLocation());
 
 		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
 		AddMovementInput(Direction, value);
@@ -316,10 +323,10 @@ void AMyPlayer::LineTraceTeleport()
 		SetActorLocationAndRotation(lineHit.Location + FVector(0,0,20), fwrDir.Rotation());
 	}
 
-	GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, "LineHit : " + lineHit.Location.ToString());
+	//GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, "LineHit : " + lineHit.Location.ToString());
 
-	DrawDebugLine(GetWorld(), startTrace, endTrace, FColor(255, 0, 0), true, 5);
-	DrawDebugBox(GetWorld(), lineHit.Location, FVector(1,1,1), FColor(255,0,0), false, 5);
+	//DrawDebugLine(GetWorld(), startTrace, endTrace, FColor(255, 0, 0), true, 5);
+	//DrawDebugBox(GetWorld(), lineHit.Location, FVector(1,1,1), FColor(255,0,0), false, 5);
 }
 
 void AMyPlayer::Hide()
@@ -349,9 +356,9 @@ void AMyPlayer::ZoomIn()
 	isInZoom = true; 
 	fpsCamera->SetRelativeLocation(FVector(150, 30, 64), false);
 
-	if(IsJumpProvidingForce()) GetCharacterMovement()->SetMovementMode(MOVE_Falling);
-	else GetCharacterMovement()->SetMovementMode(MOVE_None);
-
+	//if(IsJumpProvidingForce()) GetCharacterMovement()->SetMovementMode(MOVE_Falling);
+	//else GetCharacterMovement()->SetMovementMode(MOVE_None);
+	GetCharacterMovement()->MaxWalkSpeed = 0;
 	//SetActorRotation(fpsCamera->GetForwardVector().ToOrientationQuat());
 	//SetActorRotation(fpsCamera->GetForwardVector().ToOrientationQuat);
 	//fpsCamera->SetRelativeLocation(FVector(150, 30, 64), false);
@@ -361,7 +368,9 @@ void AMyPlayer::ZoomOut()
 {
 	orient.Pitch = 0;
 	fpsCamera->SetRelativeLocation(FVector(0, 0, 64), false);
-	GetCharacterMovement()->SetMovementMode(MOVE_Walking);
+	//GetCharacterMovement()->SetMovementMode(MOVE_Walking);
+
+	GetCharacterMovement()->MaxWalkSpeed = walkSpeed;
 	SetActorRotation(orient);
 	isInZoom = false;
 	//fpsCamera->SetRelativeLocation(FVector(0, 0, 64), false);
@@ -550,5 +559,61 @@ float AMyPlayer::TakeDamage(float Damage, struct FDamageEvent const & DamageEven
 		OnHit(ActualDamage, DamageEvent, EventInstigator ? EventInstigator->GetPawn() : NULL, DamageCauser);
 	}
 
+
 	return ActualDamage;
 }
+
+void AMyPlayer::Die(float KillingDamage, struct FDamageEvent const& DamageEvent, AController* Killer, class AActor* DamageCauser)
+{
+	//범위내 작은값을 Health값으로
+	Health = FMath::Min(0.0f, Health);
+
+
+	// 데미지타입값 작성. 데미지타입 클래스가 정의시 사용 미정의시 디폴트값 사용
+	UDamageType const* const DamageType =
+		DamageEvent.DamageTypeClass ? Cast<const UDamageType>(DamageEvent.DamageTypeClass->GetDefaultObject()) : GetDefault<UDamageType>();
+
+	Killer = GetDamageInstigator(Killer, *DamageType);
+
+	// 오브젝트 시간과 관계있는 값
+	//GetWorldTimerManager().ClearAllTimersForObject(this);
+
+	// 콜리전 해제
+	if (GetCapsuleComponent())
+	{
+		GetCapsuleComponent()->BodyInstance.SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		GetCapsuleComponent()->BodyInstance.SetResponseToChannel(ECC_Pawn, ECR_Ignore);
+		GetCapsuleComponent()->BodyInstance.SetResponseToChannel(ECC_PhysicsBody, ECR_Ignore);
+	}
+
+	// 이동불가
+	if (GetCharacterMovement())
+	{
+		GetCharacterMovement()->StopMovementImmediately();
+		GetCharacterMovement()->DisableMovement();
+	}
+
+	// 컨트롤러 해제
+	if (Controller != NULL)
+	{
+		Controller->UnPossess();
+	}
+	//GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, "Died!");
+
+	//float DeathAnimDuration = PlayAnimMontage(DeathAnim);
+
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	AnimInstance->StopSlotAnimation();
+
+	float playDuration = AnimInstance->Montage_Play(DeathAnim);
+
+	FTimerHandle TimerHandle;
+	GetWorldTimerManager().SetTimer(TimerHandle, this, &AMyPlayer::OnDieAnimationEnd, playDuration - .2f, false);
+
+	PlayerDied();
+}
+
+//void AMyPlayer::PlayerDied()
+//{
+//
+//}

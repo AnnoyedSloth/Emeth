@@ -3,6 +3,7 @@
 #include "SaveManager.h"
 #include "JsonManager.h"
 #include "CommonCharacter.h"
+#include "MyPlayer.h"
 #include "Engine.h"
 
 
@@ -26,7 +27,9 @@ void ASaveManager::SaveAll()
 	JsonManager::GetInstance()->ClearMap();
 	for (ACommonCharacter* obj : objs)
 	{
-		JsonManager::GetInstance()->SendData(obj->GetName(), obj->GetActorLocation(), obj->GetActorRotation());
+		AMyPlayer *myPlayer = Cast<AMyPlayer>(obj);
+		if(myPlayer) JsonManager::GetInstance()->SendData("MyPlayer_Blueprint_C_0", obj->GetActorLocation(), obj->GetActorRotation());
+		else JsonManager::GetInstance()->SendData(obj->GetName(), obj->GetActorLocation(), obj->GetActorRotation());
 	}
 
 	JsonManager::GetInstance()->Save();
@@ -45,8 +48,13 @@ void ASaveManager::LoadAll()
 
 	for (ACommonCharacter* obj : objs)
 	{
-		if (!obj) continue;
+		if (!obj)
+		{
+			//GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Blue, "Save Manager Line 50");
+			continue;
+		}
 		obj->LoadObjData();
+		//GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Blue, "Save Manager Line 54");
 	}
 }
 

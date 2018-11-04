@@ -23,16 +23,21 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = "true"))
 		class UProjectileMovementComponent* ProjectileMovement;
 
+	UPROPERTY(EditDefaultsOnly, Category = Sound)
+		class USoundCue* collisionSound;
+
 	UPROPERTY(EditAnywhere, Category = Projectile)
 		FName instigatorName;
 
 	UPROPERTY(EditAnywhere, Category = Projectile)
 		float damage;
 
+
 public:
 	AProjectile(const class FObjectInitializer& ObjectInitializer);
 
 	virtual void BeginPlay() override;
+	virtual void Tick(float deltaTIme) override;
 
 	virtual void NotifyActorBeginOverlap(AActor* OtherActor);
 

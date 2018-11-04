@@ -43,9 +43,11 @@ void ACommonCharacter::LoadObjData()
 {
 	TSharedPtr<ObjectInfo> myInfo = MakeShareable(new ObjectInfo);
 	myInfo = JsonManager::GetInstance()->Load(GetName());
+
 	if(myInfo.IsValid()) SetActorLocationAndRotation(myInfo->loc, myInfo->rot, false);
+	else Destroy();
 	//else
-		//GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Blue, this->GetName() + "NotFound");
+		//
 	//if (myInfo.IsValid()) GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Blue, myInfo->loc.ToString()); 
 }
 
@@ -139,7 +141,8 @@ void ACommonCharacter::OnHit(float DamageTaken, struct FDamageEvent const& Damag
 
 	if (DamageTaken > 0.0f)
 	{
-		ApplyDamageMomentum(DamageTaken, DamageEvent, PawnInstigator, DamageCauser);		
+		ApplyDamageMomentum(DamageTaken, DamageEvent, PawnInstigator, DamageCauser);
+		UGameplayStatics::PlaySoundAtLocation(this, hitSound, this->GetActorLocation());
 	}
 }
 
